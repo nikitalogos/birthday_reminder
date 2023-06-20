@@ -11,7 +11,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Birthday Reminder")
     for key, value in config.get_public_vars().items():
         parser.add_argument(
-            f'--{key}',
+            f"--{key}",
             type=type(value),
         )
     args_dict = vars(parser.parse_args())

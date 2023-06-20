@@ -1,6 +1,6 @@
 import re
-from datetime import datetime
 from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass
@@ -23,28 +23,29 @@ class FileReader:
         errors: list[ParseError] = []
 
         for idx, line in enumerate(lines):
+
             def add_error(error_text):
                 errors.append(ParseError(idx, line, error_text))
 
-            line_no_comment_strip = line.split('#')[0].strip()
-            if re.fullmatch(r'\s*', line_no_comment_strip):
+            line_no_comment_strip = line.split("#")[0].strip()
+            if re.fullmatch(r"\s*", line_no_comment_strip):
                 continue
 
             parts = line_no_comment_strip.split()
             if len(parts) < 2:
-                add_error('Expected title after date')
+                add_error("Expected title after date")
                 continue
             date_str = parts[0]
-            title = line_no_comment_strip[len(date_str):].strip()
+            title = line_no_comment_strip[len(date_str) :].strip()
             if len(title) == 0:
-                add_error('Expected title after date')
+                add_error("Expected title after date")
                 continue
 
             try:
-                date = datetime.strptime(date_str, '%Y-%m-%d')
+                date = datetime.strptime(date_str, "%Y-%m-%d")
             except ValueError:
                 try:
-                    date = datetime.strptime(date_str, '%m-%d')
+                    date = datetime.strptime(date_str, "%m-%d")
                 except ValueError:
                     add_error(f'Wrong date format: "{date_str}". Expected one of: YYYY-MM-DD, MM-DD')
                     continue
@@ -61,9 +62,10 @@ class FileReader:
 
 if __name__ == "__main__":
     from pprint import PrettyPrinter
+
     pprint = PrettyPrinter(indent=4).pprint
 
-    file_reader = FileReader('../../examples/data.txt')
+    file_reader = FileReader("../../examples/data.txt")
     pprint(file_reader.lines)
     pprint(file_reader.dates)
     pprint(file_reader.errors)
