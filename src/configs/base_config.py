@@ -44,7 +44,7 @@ class BaseConfig:
     def _read_from_file(self) -> dict:
         file_path = self._file_path
         if file_path is None:
-            raise Exception(f'Failed to read: file_path not specified!')
+            raise Exception('Failed to read: file_path not specified!')
 
         _, ext = os.path.splitext(file_path)
         assert ext == '.yaml'
@@ -60,7 +60,7 @@ class BaseConfig:
     def save_to_file(self):
         file_path = self._file_path
         if file_path is None:
-            raise Exception(f'Failed to save: file_path not specified!')
+            raise Exception('Failed to save: file_path not specified!')
 
         _, ext = os.path.splitext(file_path)
         assert ext == '.yaml'

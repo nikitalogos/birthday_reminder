@@ -2,6 +2,7 @@ import re
 from datetime import datetime
 from dataclasses import dataclass
 
+
 @dataclass
 class BirthdayEvent:
     date: datetime
@@ -59,10 +60,10 @@ class FileReader:
 
 
 if __name__ == "__main__":
-    import pprint
-    pprint = pprint.PrettyPrinter(indent=4).pprint
+    from pprint import PrettyPrinter
+    pprint = PrettyPrinter(indent=4).pprint
 
-    file_reader = FileReader('../examples/data.txt')
+    file_reader = FileReader('../../examples/data.txt')
     pprint(file_reader.lines)
     pprint(file_reader.dates)
     pprint(file_reader.errors)

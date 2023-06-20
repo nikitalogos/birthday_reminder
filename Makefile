@@ -8,16 +8,16 @@ install_python:
 
 .PHONY: test
 test:
-	python3 -m pytest
+	venv/bin/python3 -m pytest tests/
 
 .PHONY: check
 check:
-	python3 -m flake8 --max-line-length 120
+	venv/bin/python3 -m flake8 --max-line-length 120 src/
 
-	python3 -m mypy --install-types --non-interactive
-	python3 -m mypy --ignore-missing-imports --explicit-package-bases --check-untyped-defs
+	venv/bin/python3 -m mypy --install-types --non-interactive || true
+	venv/bin/python3 -m mypy --ignore-missing-imports --explicit-package-bases --check-untyped-defs src/
 
 .PHONY: format
 format:
-	python3 -m black -t py311 -l 120
-	python3 -m isort -l 120
+	venv/bin/python3 -m black -t py311 -l 120 src/
+	venv/bin/python3 -m isort -l 120 src/
