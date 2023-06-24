@@ -2,12 +2,12 @@
 "exec" "`dirname $0`/../venv/bin/python" "$0" "$@"
 
 import argparse
+
 import yaml
 
 from configs.main_config import MainConfig
 from drivers.file_reader import FileReader
 from utils.colorize import Colorize
-
 
 if __name__ == "__main__":
     config = MainConfig()

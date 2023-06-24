@@ -21,3 +21,9 @@ check:
 format:
 	venv/bin/python3 -m black -t py311 -l 120 src/
 	venv/bin/python3 -m isort -l 120 src/
+
+.PHONY: ci
+ci:
+	make format
+	make check
+	make test

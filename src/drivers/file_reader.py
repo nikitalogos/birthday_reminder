@@ -20,8 +20,11 @@ class BirthdayEvent(TextLine):
     title: str
 
     def __str__(self):
-        return Colorize.info(f"{self.line_idx}:") + f" {self.line_text} -> " + \
-            Colorize.success([self.date.strftime("%Y-%m-%d"), self.title])
+        return (
+            Colorize.info(f"{self.line_idx}:")
+            + f" {self.line_text} -> "
+            + Colorize.success([self.date.strftime("%Y-%m-%d"), self.title])
+        )
 
 
 @dataclass
@@ -81,7 +84,7 @@ class FileReader:
     @staticmethod
     def _visualize_parsed(config, dates, errors, text_lines):
         if len(errors) > 0:
-            print(f'Found {len(errors)} errors:\n---')
+            print(f"Found {len(errors)} errors:\n---")
             for error in errors:
                 print(error)
             print("---")
@@ -107,14 +110,3 @@ class FileReader:
 
         if len(errors) > 0:
             raise ValueError(f"File has {len(errors)} errors! Please fix them before continuing.")
-
-
-if __name__ == "__main__":
-    from pprint import PrettyPrinter
-
-    pprint = PrettyPrinter(indent=4).pprint
-
-    file_reader = FileReader("../../examples/data.txt")
-    pprint(file_reader.lines)
-    pprint(file_reader.dates)
-    pprint(file_reader.errors)
