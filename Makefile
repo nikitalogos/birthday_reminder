@@ -1,3 +1,5 @@
+EXE=/usr/local/bin/birthday-reminder
+
 .PHONY: install_python
 install_python:
 	sudo apt-get install python3.11 python3.11-venv
@@ -5,6 +7,18 @@ install_python:
 	python3.11 -m venv venv
 	venv/bin/pip install --upgrade pip
 	venv/bin/pip install -r requirements.txt
+
+.PHONY: install
+install:
+	make install_python
+	echo "#!/bin/bash\n$(realpath .)/venv/bin/python $(realpath .)/src/birthday_reminder.py \"\$$@\"" | sudo tee ${EXE}
+	sudo chmod a+x ${EXE}
+
+.PHONY: uninstall
+uninstall:
+	sudo rm ${EXE} || true
+	rm -r venv || true
+
 
 .PHONY: test
 test:
