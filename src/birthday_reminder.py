@@ -13,16 +13,26 @@ if __name__ == "__main__":
     config = MainConfig()
 
     parser = argparse.ArgumentParser(description="Birthday Reminder")
-    parser.add_argument("file_path", type=str, help="Path to the file with birthdays")
-    for key, value in config.get_public_vars().items():
-        if key == "verbose":
-            parser.add_argument("-v", "--verbose", action="count", default=0)
-        else:
-            parser.add_argument(
-                f"--{key.replace('_', '-')}",
-                type=type(value),
-            )
+    subparsers = parser.add_subparsers(dest="command")
+
+    read_parser = subparsers.add_parser("read", description="Just read file and check for errors")
+    show_parser = subparsers.add_parser("show", description="Show birthdays from file")
+    show_parser.add_argument('sort_type', choices=[t.value for t in FileReader.SortTypes])
+
+    for subparser in [read_parser, show_parser]:
+        subparser.add_argument("file_path", type=str, help="Path to the file with birthdays")
+        for key, value in config.get_public_vars().items():
+            if key == "verbose":
+                subparser.add_argument("-v", "--verbose", action="count", default=0)
+            else:
+                subparser.add_argument(
+                    f"--{key.replace('_', '-')}",
+                    type=type(value),
+                )
     args_dict = vars(parser.parse_args())
+    command = args_dict.pop("command")
+    sort_type = args_dict.pop("sort_type", None)
+    sort_type = FileReader.SortTypes(sort_type) if sort_type else None
     file_path = args_dict.pop("file_path")
 
     args_dict_no_nones = {k: v for k, v in args_dict.items() if v is not None}
@@ -39,3 +49,12 @@ if __name__ == "__main__":
     except ValueError as e:
         print(Colorize.fail(e))
         exit(2)
+
+    match command:
+        case "read":
+            exit(0)
+        case "show":
+            dates = reader.get_dates(sort_type)
+            for date in dates:
+                print(date)
+

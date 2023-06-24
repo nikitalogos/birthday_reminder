@@ -2,6 +2,7 @@ import enum
 import re
 from dataclasses import dataclass
 from datetime import datetime
+from strenum import StrEnum
 
 from utils.colorize import Colorize
 from birthday_event import BirthdayEvent
@@ -106,26 +107,27 @@ class FileReader:
     def __init__(self, config, file_path):
         with open(file_path) as f:
             lines = f.readlines()
-        self.dates, errors, text_lines = self._parse_lines(lines)
+        dates, errors, text_lines = self._parse_lines(lines)
 
-        self._visualize_parsed(config, self.dates, errors, text_lines)
-
+        self._visualize_parsed(config, dates, errors, text_lines)
         if len(errors) > 0:
             raise ValueError(f"File has {len(errors)} errors! Please fix them before continuing.")
 
-    @enum.unique
-    class SortType(enum.Enum):
-        DATE = enum.auto()
-        DAYS_UNTIL = enum.auto()
-        AGE = enum.auto()
+        self.events = [date.event for date in dates]
 
-    def get_dates(self, sort: SortType):
-        match sort:
-            case self.SortType.DATE:
-                return sorted(self.dates, key=lambda d: d.date)
-            case self.SortType.DAYS_UNTIL:
-                return sorted(self.dates, key=lambda d: d.days_until)
-            case self.SortType.AGE:
-                return sorted(self.dates, key=lambda d: d.age)
+    @enum.unique
+    class SortTypes(StrEnum):
+        year = enum.auto()
+        date = enum.auto()
+        next = enum.auto()
+
+    def get_dates(self, sort_type: SortTypes):
+        match sort_type:
+            case self.SortTypes.year:
+                return sorted(self.events, key=lambda d: d.date)
+            case self.SortTypes.date:
+                return sorted(self.events, key=lambda d: d.date_no_year)
+            case self.SortTypes.next:
+                return sorted(self.events, key=lambda d: d.days_until_next_birthday)
             case _:
-                raise ValueError(f"Unknown sort type: {sort}")
+                raise ValueError(f"Unknown sort type: {sort_type}")
