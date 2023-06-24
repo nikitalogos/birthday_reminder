@@ -15,6 +15,7 @@ class MainConfig(BaseConfig):
         request_schema = {
             "date_format_year": {"type": "string", "required": True, "regex": r"\S+"},
             "date_format_no_year": {"type": "string", "required": True, "regex": r"\S+"},
+            "verbose": {"type": "integer", "required": True, "min": 0},
         }
         validator = Validator(request_schema)
 
@@ -28,6 +29,7 @@ class MainConfig(BaseConfig):
 
         self.date_format_year = "%Y-%m-%d"
         self.date_format_no_year = "%m-%d"
+        self.verbose = 0
 
         self._validate(self.get_public_vars())
 
