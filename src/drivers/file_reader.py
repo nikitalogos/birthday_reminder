@@ -1,8 +1,10 @@
+import enum
 import re
 from dataclasses import dataclass
 from datetime import datetime
 
 from utils.colorize import Colorize
+from birthday_event import BirthdayEvent
 
 
 @dataclass
@@ -15,15 +17,14 @@ class TextLine:
 
 
 @dataclass
-class BirthdayEvent(TextLine):
-    date: datetime
-    title: str
+class BirthdayLine(TextLine):
+    event: BirthdayEvent
 
     def __str__(self):
         return (
             Colorize.info(f"{self.line_idx}:")
             + f" {self.line_text} -> "
-            + Colorize.success([self.date.strftime("%Y-%m-%d"), self.title])
+            + Colorize.success(self.event)
         )
 
 
@@ -75,9 +76,10 @@ class FileReader:
                     add_error(f'Wrong date format: "{date_str}". Expected one of: YYYY-MM-DD, MM-DD')
                     continue
 
-            be = BirthdayEvent(idx, line_no_end, date, title)
-            dates.append(be)
-            text_lines.append(be)
+            be = BirthdayEvent(date, title)
+            bl = BirthdayLine(idx, line_no_end, be)
+            dates.append(bl)
+            text_lines.append(bl)
 
         return dates, errors, text_lines
 
@@ -110,3 +112,20 @@ class FileReader:
 
         if len(errors) > 0:
             raise ValueError(f"File has {len(errors)} errors! Please fix them before continuing.")
+
+    @enum.unique
+    class SortType(enum.Enum):
+        DATE = enum.auto()
+        DAYS_UNTIL = enum.auto()
+        AGE = enum.auto()
+
+    def get_dates(self, sort: SortType):
+        match sort:
+            case self.SortType.DATE:
+                return sorted(self.dates, key=lambda d: d.date)
+            case self.SortType.DAYS_UNTIL:
+                return sorted(self.dates, key=lambda d: d.days_until)
+            case self.SortType.AGE:
+                return sorted(self.dates, key=lambda d: d.age)
+            case _:
+                raise ValueError(f"Unknown sort type: {sort}")
