@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     validate_parser = subparsers.add_parser("validate", description="Just read file and check for errors")
     show_parser = subparsers.add_parser("show", description="Show birthdays from file")
-    show_parser.add_argument('sort_type', choices=[t.value for t in FileReader.SortTypes])
+    show_parser.add_argument("sort_type", choices=[t.value for t in list(FileReader.SortTypes)])
 
     for subparser in [validate_parser, show_parser]:
         subparser.add_argument("file_path", type=str, help="Path to the file with birthdays")
@@ -63,5 +63,5 @@ if __name__ == "__main__":
             dates = reader.get_dates(sort_type)
             chars_for_digit = len(str(len(dates)))
             for idx, date in enumerate(dates):
-                print(f'{(idx + 1):{chars_for_digit}}. {date}')
+                print(f"{(idx + 1):{chars_for_digit}}. {date}")
             print()

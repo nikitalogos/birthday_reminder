@@ -27,15 +27,15 @@ tests:
 
 .PHONY: check
 check:
-	venv/bin/python3 -m flake8 --max-line-length 120 src/ tests/
+	venv/bin/python3 -m flake8 --max-line-length 120 birthday_reminder/ tests/
 
 	venv/bin/python3 -m mypy --install-types --non-interactive || true
-	venv/bin/python3 -m mypy --ignore-missing-imports --explicit-package-bases --check-untyped-defs src/ tests/
+	venv/bin/python3 -m mypy --ignore-missing-imports --explicit-package-bases --check-untyped-defs birthday_reminder/ tests/
 
 .PHONY: format
 format:
-	venv/bin/python3 -m black -t py311 -l 120 src/ tests/
-	venv/bin/python3 -m isort -l 120 src/ tests/
+	venv/bin/python3 -m black -t py311 -l 120 birthday_reminder/ tests/
+	venv/bin/python3 -m isort -l 120 birthday_reminder/ tests/
 
 .PHONY: ci
 ci:

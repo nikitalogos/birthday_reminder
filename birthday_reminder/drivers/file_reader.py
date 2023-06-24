@@ -2,10 +2,11 @@ import enum
 import re
 from dataclasses import dataclass
 from datetime import datetime
+
 from strenum import StrEnum
 
-from ..utils.colorize import Colorize
 from ..birthday_event import BirthdayEvent
+from ..utils.colorize import Colorize
 
 
 @dataclass
@@ -22,11 +23,7 @@ class BirthdayLine(TextLine):
     event: BirthdayEvent
 
     def __str__(self):
-        return (
-            Colorize.info(f"{self.line_idx}:")
-            + f" {self.line_text} -> "
-            + Colorize.success(self.event)
-        )
+        return Colorize.info(f"{self.line_idx}:") + f" {self.line_text} -> " + Colorize.success(self.event)
 
 
 @dataclass
@@ -40,7 +37,7 @@ class ParseError(TextLine):
 class FileReader:
     @staticmethod
     def _parse_lines(lines):
-        dates: list[BirthdayEvent] = []
+        dates: list[BirthdayLine] = []
         errors: list[ParseError] = []
         text_lines: list[TextLine] = []
 

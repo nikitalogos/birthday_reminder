@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+
 from dateutil.relativedelta import relativedelta
 
 from .utils.colorize import Colorize
@@ -30,5 +31,7 @@ class BirthdayEvent:
         return (self.next_birthday - datetime.now()).days
 
     def __str__(self):
-        return f"{self.date.strftime('%Y-%m-%d')} - {self.title} - {Colorize.info(self.age)} years old " \
-               f"(Will be {Colorize.info(self.age + 1)} in {Colorize.info(self.days_until_next_birthday)} days)"
+        return (
+            f"{self.date.strftime('%Y-%m-%d')} - {self.title} - {Colorize.info(self.age)} years old "
+            f"(Will be {Colorize.info(self.age + 1)} in {Colorize.info(self.days_until_next_birthday)} days)"
+        )
