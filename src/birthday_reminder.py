@@ -15,11 +15,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Birthday Reminder")
     subparsers = parser.add_subparsers(dest="command")
 
-    read_parser = subparsers.add_parser("read", description="Just read file and check for errors")
+    validate_parser = subparsers.add_parser("validate", description="Just read file and check for errors")
     show_parser = subparsers.add_parser("show", description="Show birthdays from file")
     show_parser.add_argument('sort_type', choices=[t.value for t in FileReader.SortTypes])
 
-    for subparser in [read_parser, show_parser]:
+    for subparser in [validate_parser, show_parser]:
         subparser.add_argument("file_path", type=str, help="Path to the file with birthdays")
         for key, value in config.get_public_vars().items():
             if key == "verbose":
@@ -51,10 +51,21 @@ if __name__ == "__main__":
         exit(2)
 
     match command:
-        case "read":
+        case "validate":
+            print(Colorize.success(f"File {file_path} is valid!"))
             exit(0)
         case "show":
+            message = {
+                FileReader.SortTypes.year: "year of birth",
+                FileReader.SortTypes.date: "month and day of birth",
+                FileReader.SortTypes.next: "days to the next birthday",
+            }
+            message = Colorize.info(f"\nShowing birthdays sorted by {message[sort_type]}:\n")
+            print(message)
+
             dates = reader.get_dates(sort_type)
-            for date in dates:
-                print(date)
+            chars_for_digit = len(str(len(dates)))
+            for idx, date in enumerate(dates):
+                print(f'{(idx + 1):{chars_for_digit}}. {date}')
+            print()
 
