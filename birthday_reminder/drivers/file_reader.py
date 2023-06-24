@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from strenum import StrEnum
 
-from utils.colorize import Colorize
-from birthday_event import BirthdayEvent
+from ..utils.colorize import Colorize
+from ..birthday_event import BirthdayEvent
 
 
 @dataclass

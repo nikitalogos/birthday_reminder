@@ -1,19 +1,16 @@
-#!/bin/sh
-"exec" "`dirname $0`/../venv/bin/python" "$0" "$@"
-
 import argparse
 
 import yaml
 
-from configs.main_config import MainConfig
-from drivers.file_reader import FileReader
-from utils.colorize import Colorize
+from .configs.main_config import MainConfig
+from .drivers.file_reader import FileReader
+from .utils.colorize import Colorize
 
 if __name__ == "__main__":
     config = MainConfig()
 
-    parser = argparse.ArgumentParser(description="Birthday Reminder")
-    subparsers = parser.add_subparsers(dest="command")
+    parser = argparse.ArgumentParser(prog="birthday-reminder", description="Birthday Reminder")
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
     validate_parser = subparsers.add_parser("validate", description="Just read file and check for errors")
     show_parser = subparsers.add_parser("show", description="Show birthdays from file")
@@ -46,7 +43,7 @@ if __name__ == "__main__":
 
     try:
         reader = FileReader(config, file_path)
-    except ValueError as e:
+    except Exception as e:
         print(Colorize.fail(e))
         exit(2)
 
@@ -68,4 +65,3 @@ if __name__ == "__main__":
             for idx, date in enumerate(dates):
                 print(f'{(idx + 1):{chars_for_digit}}. {date}')
             print()
-

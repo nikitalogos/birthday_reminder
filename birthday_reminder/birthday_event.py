@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-from utils.colorize import Colorize
+from .utils.colorize import Colorize
 
 
 @dataclass

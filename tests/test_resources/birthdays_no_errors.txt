@@ -1,0 +1,4 @@
+# sample comment
+2001-01-01 Ivan Ivanovich
+  1900-12-08 Tanaka Tarou  # comment 2
+1985-05-28 Husky
