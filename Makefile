@@ -1,4 +1,6 @@
+PYTHON=venv/bin/python3
 EXE=/usr/local/bin/birthday-reminder
+DIRS=birthday_reminder tests
 
 .PHONY: install_python
 install_python:
@@ -23,19 +25,19 @@ uninstall:
 
 .PHONY: tests
 tests:
-	venv/bin/python3 -m pytest tests/
+	${PYTHON} -m pytest tests/
 
 .PHONY: check
 check:
-	venv/bin/python3 -m flake8 --max-line-length 120 birthday_reminder/ tests/
+	${PYTHON} -m flake8 --max-line-length 120 ${DIRS}
 
-	venv/bin/python3 -m mypy --install-types --non-interactive || true
-	venv/bin/python3 -m mypy --ignore-missing-imports --explicit-package-bases --check-untyped-defs birthday_reminder/ tests/
+	${PYTHON} -m mypy --install-types --non-interactive ${DIRS} > /dev/null 2>&1 || true
+	${PYTHON} -m mypy --ignore-missing-imports --explicit-package-bases --check-untyped-defs ${DIRS}
 
 .PHONY: format
 format:
-	venv/bin/python3 -m black -t py311 -l 120 birthday_reminder/ tests/
-	venv/bin/python3 -m isort -l 120 birthday_reminder/ tests/
+	${PYTHON} -m black -t py311 -l 120 ${DIRS}
+	${PYTHON} -m isort -l 120 ${DIRS}
 
 .PHONY: ci
 ci:
