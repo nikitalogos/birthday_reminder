@@ -35,6 +35,13 @@ Alex # error, date is missing
 4. Restart your shell to make autocompletion work
 5. Run `birthday-reminder --help`
 
+#### Install for development
+
+```sh
+make install_git_pre_commit_hook
+make install
+```
+
 > Developer note: `make install` installs package in editable mode, so you can edit code and `birthday-reminder` will use the updated version
 
 #### Uninstall

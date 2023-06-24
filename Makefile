@@ -12,7 +12,7 @@ install_python:
 .PHONY: install
 install:
 	make install_python
-	echo "#!/bin/bash\n$(realpath .)/venv/bin/python -m birthday_reminder \"\$$@\"" | sudo tee ${EXE}
+	echo "#!/bin/sh\n$(realpath .)/venv/bin/python -m birthday_reminder \"\$$@\"" | sudo tee ${EXE}
 	sudo chmod a+x ${EXE}
 
 .PHONY: uninstall
@@ -42,3 +42,12 @@ ci:
 	make format
 	make check
 	make tests
+
+.PHONY: install_git_pre_commit_hook
+install_git_pre_commit_hook:
+	echo '#!/bin/sh\nmake ci' > .git/hooks/pre-commit
+	chmod +x .git/hooks/pre-commit
+
+.PHONY: uninstall_git_pre_commit_hook
+uninstall_git_pre_commit_hook:
+	rm .git/hooks/pre-commit || true
