@@ -9,6 +9,13 @@ from .drivers.google_calendar_api import GoogleCalendarApi
 from .utils.colorize import Colorize
 
 
+def print_events(events: list[BirthdayEvent]):
+    chars_for_digit = len(str(len(events)))
+    for idx, event in enumerate(events):
+        print(f"{(idx + 1):{chars_for_digit}}. {event}")
+    print()
+
+
 def show(events: list[BirthdayEvent], sort_type: BirthdayEvent.SortTypes):
     message = {
         BirthdayEvent.SortTypes.year: "year of birth",
@@ -19,18 +26,44 @@ def show(events: list[BirthdayEvent], sort_type: BirthdayEvent.SortTypes):
     print(message)
 
     events_sorted = BirthdayEvent.sort_events(events, sort_type)
-    chars_for_digit = len(str(len(events_sorted)))
-    for idx, event in enumerate(events_sorted):
-        print(f"{(idx + 1):{chars_for_digit}}. {event}")
-    print()
+    print_events(events_sorted)
 
 
-def diff(file_events, google_events):
+def diff(config, file_events, google_events):
     file_events_set = set(file_events)
-    google_events_set = set(google_events)
-
+    # impossible, already checked in FileReader
     assert len(file_events_set) == len(file_events), "File contains duplicates"
-    assert len(google_events_set) == len(google_events), "Google Calendar contains duplicates"
+
+    google_events_set = set(google_events)
+    if len(google_events_set) != len(google_events):
+        print(
+            Colorize.warning(
+                "Google Calendar contains duplicates. Did you edit the calendar manually? "
+                "This is not an error, duplicates will be ignored. They will go away after you run 'upload' command."
+            )
+        )
+
+    common_events = file_events_set & google_events_set
+    file_only_events = file_events_set - google_events_set
+    google_only_events = google_events_set - file_events_set
+
+    print(
+        Colorize.info(
+            f"File has {len(file_events_set)} events, Google Calendar has {len(google_events_set)} events.\n"
+            f"{len(common_events)} events are common,\n"
+            f"{len(file_only_events)} events are only in file,\n"
+            f"{len(google_only_events)} events are only in Google Calendar.\n"
+        )
+    )
+    if len(file_only_events) > 0:
+        print(Colorize.warning("Events only in file:"))
+        print_events(list(file_only_events))
+    if len(google_only_events) > 0:
+        print(Colorize.warning("Events only in Google Calendar:"))
+        print_events(list(google_only_events))
+    if config.verbose and len(common_events) > 0:
+        print(Colorize.info("Common events:"))
+        print_events(list(common_events))
 
 
 if __name__ == "__main__":
@@ -99,4 +132,4 @@ if __name__ == "__main__":
         case "gshow":
             show(google_events, sort_type)
         case "diff":
-            diff(file_events=file_events, google_events=google_events)
+            diff(config, file_events=file_events, google_events=google_events)
