@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-# Minimal setup.py file to install locally to make tests work. Not intended for production use.
+# Minimal setup.py file for local installation of the package.
 setup(
     name='birthday_reminder',
     packages=find_packages(),

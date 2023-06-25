@@ -3,9 +3,9 @@ pyyaml
 python-dateutil
 StrEnum
 
-# google-api-python-client
-# google-auth-httplib2
-# google-auth-oauthlib
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
 
 pytest
 pytest-instafail

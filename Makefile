@@ -14,12 +14,15 @@ install_python:
 .PHONY: install
 install:
 	make install_python
+	mkdir .auth
+	chmod 700 .auth
 	echo "#!/bin/sh\n$(realpath .)/venv/bin/python -m birthday_reminder \"\$$@\"" | sudo tee ${EXE}
 	sudo chmod a+x ${EXE}
 
 .PHONY: uninstall
 uninstall:
 	sudo rm ${EXE} || true
+	rm -r .auth || true
 	rm -r venv || true
 
 

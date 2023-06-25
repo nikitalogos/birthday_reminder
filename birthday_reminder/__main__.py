@@ -4,6 +4,7 @@ import yaml
 
 from .configs.main_config import MainConfig
 from .drivers.file_reader import FileReader
+from .drivers.google_calendar_api import GoogleCalendarApi
 from .utils.colorize import Colorize
 
 if __name__ == "__main__":
@@ -15,8 +16,9 @@ if __name__ == "__main__":
     validate_parser = subparsers.add_parser("validate", description="Just read file and check for errors")
     show_parser = subparsers.add_parser("show", description="Show birthdays from file")
     show_parser.add_argument("sort_type", choices=[t.value for t in list(FileReader.SortTypes)])
+    diff_parser = subparsers.add_parser("diff", description="Show difference between file and Google Calendar")
 
-    for subparser in [validate_parser, show_parser]:
+    for subparser in [validate_parser, show_parser, diff_parser]:
         subparser.add_argument("file_path", type=str, help="Path to the file with birthdays")
         for key, value in config.get_public_vars().items():
             if key == "verbose":
@@ -65,3 +67,10 @@ if __name__ == "__main__":
             for idx, date in enumerate(dates):
                 print(f"{(idx + 1):{chars_for_digit}}. {date}")
             print()
+        case "diff":
+            try:
+                gc = GoogleCalendarApi(config)
+                print(gc.get_calendars())
+            except Exception as e:
+                print(Colorize.fail(e))
+                exit(11)
