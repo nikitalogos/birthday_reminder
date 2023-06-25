@@ -70,7 +70,7 @@ if __name__ == "__main__":
         case "diff":
             try:
                 gc = GoogleCalendarApi(config)
-                print(gc.get_calendars())
+                print(gc.get_all_events())
             except Exception as e:
                 print(Colorize.fail(e))
                 exit(11)

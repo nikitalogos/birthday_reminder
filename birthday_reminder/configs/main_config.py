@@ -15,6 +15,8 @@ class MainConfig(BaseConfig):
         request_schema = {
             "date_format_year": {"type": "string", "required": True, "regex": r"\S+"},
             "date_format_no_year": {"type": "string", "required": True, "regex": r"\S+"},
+            "calendar_name": {"type": "string", "required": True},
+            "calendar_color_id": {"type": "integer", "required": True, "min": 1, "max": 24},
             "verbose": {"type": "integer", "required": True, "min": 0},
         }
         validator = Validator(request_schema)
@@ -29,6 +31,10 @@ class MainConfig(BaseConfig):
 
         self.date_format_year = "%Y-%m-%d"
         self.date_format_no_year = "%m-%d"
+
+        self.calendar_name = "Birthday Reminder"
+        self.calendar_color_id = 17  # lavender
+
         self.verbose = 0
 
         self._validate(self.get_public_vars())
