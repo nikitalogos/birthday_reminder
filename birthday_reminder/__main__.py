@@ -2,10 +2,28 @@ import argparse
 
 import yaml
 
+from .birthday_event import BirthdayEvent
 from .configs.main_config import MainConfig
 from .drivers.file_reader import FileReader
 from .drivers.google_calendar_api import GoogleCalendarApi
 from .utils.colorize import Colorize
+
+
+def show(events: list[BirthdayEvent], sort_type: BirthdayEvent.SortTypes):
+    message = {
+        BirthdayEvent.SortTypes.year: "year of birth",
+        BirthdayEvent.SortTypes.date: "month and day of birth",
+        BirthdayEvent.SortTypes.next: "days to the next birthday",
+    }
+    message = Colorize.info(f"\nShowing birthdays sorted by {message[sort_type]}:\n")
+    print(message)
+
+    events_sorted = BirthdayEvent.sort_events(events, sort_type)
+    chars_for_digit = len(str(len(events_sorted)))
+    for idx, event in enumerate(events_sorted):
+        print(f"{(idx + 1):{chars_for_digit}}. {event}")
+    print()
+
 
 if __name__ == "__main__":
     config = MainConfig()
@@ -15,11 +33,15 @@ if __name__ == "__main__":
 
     validate_parser = subparsers.add_parser("validate", description="Just read file and check for errors")
     show_parser = subparsers.add_parser("show", description="Show birthdays from file")
-    show_parser.add_argument("sort_type", choices=[t.value for t in list(FileReader.SortTypes)])
-    diff_parser = subparsers.add_parser("diff", description="Show difference between file and Google Calendar")
+    gshow_parser = subparsers.add_parser("gshow", description="Show birthdays from Google Calendar")
 
-    for subparser in [validate_parser, show_parser, diff_parser]:
+    for subparser in [show_parser, gshow_parser]:
+        subparser.add_argument("sort_type", choices=[t.value for t in list(BirthdayEvent.SortTypes)])
+
+    for subparser in [validate_parser, show_parser]:
         subparser.add_argument("file_path", type=str, help="Path to the file with birthdays")
+
+    for subparser in [validate_parser, show_parser, gshow_parser]:
         for key, value in config.get_public_vars().items():
             if key == "verbose":
                 subparser.add_argument("-v", "--verbose", action="count", default=0)
@@ -31,8 +53,8 @@ if __name__ == "__main__":
     args_dict = vars(parser.parse_args())
     command = args_dict.pop("command")
     sort_type = args_dict.pop("sort_type", None)
-    sort_type = FileReader.SortTypes(sort_type) if sort_type else None
-    file_path = args_dict.pop("file_path")
+    sort_type = BirthdayEvent.SortTypes(sort_type) if sort_type else None
+    file_path = args_dict.pop("file_path", None)
 
     args_dict_no_nones = {k: v for k, v in args_dict.items() if v is not None}
     try:
@@ -43,34 +65,24 @@ if __name__ == "__main__":
     if config.verbose:
         print(f"Configuration:\n---\n{yaml.dump(config.get_public_vars())}---")
 
-    try:
-        reader = FileReader(config, file_path)
-    except Exception as e:
-        print(Colorize.fail(e))
-        exit(2)
+    if file_path is not None:
+        try:
+            reader = FileReader(config, file_path)
+        except Exception as e:
+            print(Colorize.fail(e))
+            exit(2)
 
     match command:
         case "validate":
             print(Colorize.success(f"File {file_path} is valid!"))
             exit(0)
         case "show":
-            message = {
-                FileReader.SortTypes.year: "year of birth",
-                FileReader.SortTypes.date: "month and day of birth",
-                FileReader.SortTypes.next: "days to the next birthday",
-            }
-            message = Colorize.info(f"\nShowing birthdays sorted by {message[sort_type]}:\n")
-            print(message)
-
-            dates = reader.get_dates(sort_type)
-            chars_for_digit = len(str(len(dates)))
-            for idx, date in enumerate(dates):
-                print(f"{(idx + 1):{chars_for_digit}}. {date}")
-            print()
-        case "diff":
+            show(reader.events, sort_type)
+        case "gshow":
             try:
                 gc = GoogleCalendarApi(config)
-                print(gc.get_all_events())
+                events = gc.get_events()
+                show(events, sort_type)
             except Exception as e:
                 print(Colorize.fail(e))
                 exit(11)

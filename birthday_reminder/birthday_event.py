@@ -1,7 +1,9 @@
+import enum
 from dataclasses import dataclass
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
+from strenum import StrEnum
 
 from .utils.colorize import Colorize
 
@@ -10,6 +12,7 @@ from .utils.colorize import Colorize
 class BirthdayEvent:
     date: datetime
     title: str
+    google_event: dict | None = None
 
     @property
     def date_no_year(self):
@@ -35,3 +38,21 @@ class BirthdayEvent:
             f"{self.date.strftime('%Y-%m-%d')} - {self.title} - {Colorize.info(self.age)} years old "
             f"(Will be {Colorize.info(self.age + 1)} in {Colorize.info(self.days_until_next_birthday)} days)"
         )
+
+    @enum.unique
+    class SortTypes(StrEnum):
+        year = enum.auto()
+        date = enum.auto()
+        next = enum.auto()
+
+    @classmethod
+    def sort_events(cls, events: list, sort_type: SortTypes):
+        match sort_type:
+            case cls.SortTypes.year:
+                return sorted(events, key=lambda d: d.date)
+            case cls.SortTypes.date:
+                return sorted(events, key=lambda d: d.date_no_year)
+            case cls.SortTypes.next:
+                return sorted(events, key=lambda d: d.days_until_next_birthday)
+            case _:
+                raise ValueError(f"Unknown sort type: {sort_type}")

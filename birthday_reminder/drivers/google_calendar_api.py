@@ -1,11 +1,13 @@
 import json
 import os.path
+from datetime import datetime
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
+from ..birthday_event import BirthdayEvent
 from ..configs.main_config import MainConfig
 
 
@@ -95,7 +97,7 @@ class GoogleCalendarApi:
                     return self.service.calendars().update(calendarId=br_calendar["id"], body=br_calendar).execute()
         return br_calendar
 
-    def get_all_events(self):
+    def _get_all_events(self) -> list[dict]:
         events = []
         page_token = None
         while True:
@@ -114,4 +116,14 @@ class GoogleCalendarApi:
             page_token = result.get("nextPageToken")
             if not page_token:
                 break
+        return events
+
+    def get_events(self) -> list[BirthdayEvent]:
+        events = []
+        google_events = self._get_all_events()
+
+        for google_event in google_events:
+            date = datetime.fromisoformat(google_event["start"]["date"])
+            title = google_event["summary"]
+            events.append(BirthdayEvent(date=date, title=title, google_event=google_event))
         return events

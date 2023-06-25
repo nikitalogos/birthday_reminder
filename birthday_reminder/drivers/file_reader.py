@@ -1,9 +1,6 @@
-import enum
 import re
 from dataclasses import dataclass
 from datetime import datetime
-
-from strenum import StrEnum
 
 from ..birthday_event import BirthdayEvent
 from ..utils.colorize import Colorize
@@ -111,20 +108,3 @@ class FileReader:
             raise ValueError(f"File has {len(errors)} errors! Please fix them before continuing.")
 
         self.events = [date.event for date in dates]
-
-    @enum.unique
-    class SortTypes(StrEnum):
-        year = enum.auto()
-        date = enum.auto()
-        next = enum.auto()
-
-    def get_dates(self, sort_type: SortTypes):
-        match sort_type:
-            case self.SortTypes.year:
-                return sorted(self.events, key=lambda d: d.date)
-            case self.SortTypes.date:
-                return sorted(self.events, key=lambda d: d.date_no_year)
-            case self.SortTypes.next:
-                return sorted(self.events, key=lambda d: d.days_until_next_birthday)
-            case _:
-                raise ValueError(f"Unknown sort type: {sort_type}")
