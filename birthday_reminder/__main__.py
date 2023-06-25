@@ -25,6 +25,14 @@ def show(events: list[BirthdayEvent], sort_type: BirthdayEvent.SortTypes):
     print()
 
 
+def diff(file_events, google_events):
+    file_events_set = set(file_events)
+    google_events_set = set(google_events)
+
+    assert len(file_events_set) == len(file_events), "File contains duplicates"
+    assert len(google_events_set) == len(google_events), "Google Calendar contains duplicates"
+
+
 if __name__ == "__main__":
     config = MainConfig()
 
@@ -34,11 +42,12 @@ if __name__ == "__main__":
     validate_parser = subparsers.add_parser("validate", description="Just read file and check for errors")
     show_parser = subparsers.add_parser("show", description="Show birthdays from file")
     gshow_parser = subparsers.add_parser("gshow", description="Show birthdays from Google Calendar")
+    diff_parser = subparsers.add_parser("diff", description="Show differences between file and Google Calendar")
 
     for subparser in [show_parser, gshow_parser]:
         subparser.add_argument("sort_type", choices=[t.value for t in list(BirthdayEvent.SortTypes)])
 
-    for subparser in [validate_parser, show_parser]:
+    for subparser in [validate_parser, show_parser, diff_parser]:
         subparser.add_argument("file_path", type=str, help="Path to the file with birthdays")
 
     for subparser in [validate_parser, show_parser, gshow_parser]:
@@ -68,21 +77,26 @@ if __name__ == "__main__":
     if file_path is not None:
         try:
             reader = FileReader(config, file_path)
+            file_events = reader.events
         except Exception as e:
             print(Colorize.fail(e))
             exit(2)
+
+    if command in ["gshow", "diff"]:
+        try:
+            gc_api = GoogleCalendarApi(config)
+            google_events = gc_api.get_events()
+        except Exception as e:
+            print(Colorize.fail(e))
+            exit(3)
 
     match command:
         case "validate":
             print(Colorize.success(f"File {file_path} is valid!"))
             exit(0)
         case "show":
-            show(reader.events, sort_type)
+            show(file_events, sort_type)
         case "gshow":
-            try:
-                gc = GoogleCalendarApi(config)
-                events = gc.get_events()
-                show(events, sort_type)
-            except Exception as e:
-                print(Colorize.fail(e))
-                exit(11)
+            show(google_events, sort_type)
+        case "diff":
+            diff(file_events=file_events, google_events=google_events)

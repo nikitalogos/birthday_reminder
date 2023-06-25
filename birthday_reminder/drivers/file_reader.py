@@ -107,4 +107,13 @@ class FileReader:
         if len(errors) > 0:
             raise ValueError(f"File has {len(errors)} errors! Please fix them before continuing.")
 
-        self.events = [date.event for date in dates]
+        events = [date.event for date in dates]
+
+        if len(events) != len(set(events)):
+            duplicate_events = [event for event in events if events.count(event) > 1]
+            duplicate_lines = [line for line in dates if line.event in duplicate_events]
+            duplicate_lines_str = "\n".join([f"{line.line_idx}: {line.line_text}" for line in duplicate_lines])
+            raise ValueError(f"File has duplicate events! Please remove them before continuing.\n"
+                             f"Duplicates:\n{duplicate_lines_str}")
+
+        self.events = events

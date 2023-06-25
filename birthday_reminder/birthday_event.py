@@ -39,6 +39,14 @@ class BirthdayEvent:
             f"(Will be {Colorize.info(self.age + 1)} in {Colorize.info(self.days_until_next_birthday)} days)"
         )
 
+    def __eq__(self, other):
+        if not isinstance(other, BirthdayEvent):
+            return NotImplemented
+        return (self.date, self.title) == (other.date, other.title)
+
+    def __hash__(self):
+        return hash((self.date, self.title))
+
     @enum.unique
     class SortTypes(StrEnum):
         year = enum.auto()
