@@ -2,6 +2,7 @@ cerberus
 pyyaml
 python-dateutil
 StrEnum
+tqdm
 
 google-api-python-client
 google-auth-httplib2

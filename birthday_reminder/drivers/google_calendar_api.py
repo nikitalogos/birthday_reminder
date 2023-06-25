@@ -1,11 +1,15 @@
 import json
 import os.path
+import time
 from datetime import datetime
 
+import tqdm
+from dateutil.relativedelta import relativedelta
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 from ..birthday_event import BirthdayEvent
 from ..configs.main_config import MainConfig
@@ -116,6 +120,12 @@ class GoogleCalendarApi:
             page_token = result.get("nextPageToken")
             if not page_token:
                 break
+
+        # although we set cancelledEvents=False, we still can get cancelled events
+        # if they are exceptions of a recurring event.
+        # In our app user is not expected to modify any events manually, but he can.
+        events = list(filter(lambda event: event["status"] != "cancelled", events))
+
         return events
 
     def get_events(self) -> list[BirthdayEvent]:
@@ -127,3 +137,54 @@ class GoogleCalendarApi:
             title = google_event["summary"]
             events.append(BirthdayEvent(date=date, title=title, google_event=google_event))
         return events
+
+    def _delete_create_one_event(self, google_event: dict, is_create: bool):
+        delays = [1, 2, 4, 8, 16, 32, 64, 128]
+
+        for n in range(len(delays)):
+            try:
+                if is_create:
+                    self.service.events().insert(calendarId=self.br_calendar["id"], body=google_event).execute()
+                else:
+                    self.service.events().delete(
+                        calendarId=self.br_calendar["id"], eventId=google_event["id"]
+                    ).execute()
+                break
+            except Exception as e:
+                # if user creates exception from recurring event, it will cause 410 error
+                # if exception event will be deleted after base event
+                if type(e) == HttpError and e.resp.status == 410:
+                    print(
+                        f"Event has been deleted. Probably exception from a recurring event. "
+                        f"Ignoring this error.\n{google_event=}"
+                    )
+                    break
+
+                if n == len(delays) - 1:
+                    raise Exception(f"Request failed with {e}\nFailed to delete event! {google_event=}")
+                print(f"Request failed with {e}, retrying in {delays[n]} seconds...")
+                time.sleep(delays[n])
+
+    def _delete_one_event(self, google_event: dict):
+        self._delete_create_one_event(google_event, is_create=False)
+
+    def _create_one_event(self, google_event: dict):
+        self._delete_create_one_event(google_event, is_create=True)
+
+    def delete_all_events(self, events: list[BirthdayEvent]):
+        assert all(event.google_event is not None for event in events), "All events must have 'google_event' attribute"
+
+        for event in tqdm.tqdm(events, desc="Deleting events from Google Calendar"):
+            self._delete_one_event(event.google_event)  # type: ignore # mypy doesn't see assert above
+
+    def upload_events(self, events: list[BirthdayEvent]):
+        for event in tqdm.tqdm(events, desc="Uploading events to Google Calendar"):
+            next_day = event.date + relativedelta(days=1)
+
+            google_event = {
+                "summary": event.title,
+                "start": {"date": event.date.strftime("%Y-%m-%d")},
+                "end": {"date": next_day.strftime("%Y-%m-%d")},
+                "recurrence": ["RRULE:FREQ=YEARLY"],
+            }
+            self._create_one_event(google_event)

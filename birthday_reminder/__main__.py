@@ -1,4 +1,5 @@
 import argparse
+import copy
 
 import yaml
 
@@ -29,7 +30,7 @@ def show(events: list[BirthdayEvent], sort_type: BirthdayEvent.SortTypes):
     print_events(events_sorted)
 
 
-def diff(config, file_events, google_events):
+def diff(config, file_events, google_events) -> int:
     file_events_set = set(file_events)
     # impossible, already checked in FileReader
     assert len(file_events_set) == len(file_events), "File contains duplicates"
@@ -65,6 +66,8 @@ def diff(config, file_events, google_events):
         print(Colorize.info("Common events:"))
         print_events(list(common_events))
 
+    return len(file_only_events) + len(google_only_events)
+
 
 if __name__ == "__main__":
     config = MainConfig()
@@ -76,29 +79,34 @@ if __name__ == "__main__":
     show_parser = subparsers.add_parser("show", description="Show birthdays from file")
     gshow_parser = subparsers.add_parser("gshow", description="Show birthdays from Google Calendar")
     diff_parser = subparsers.add_parser("diff", description="Show differences between file and Google Calendar")
+    upload_parser = subparsers.add_parser("upload", description="Upload birthdays from file to Google Calendar")
 
     for subparser in [show_parser, gshow_parser]:
         subparser.add_argument("sort_type", choices=[t.value for t in list(BirthdayEvent.SortTypes)])
 
-    for subparser in [validate_parser, show_parser, diff_parser]:
+    for subparser in [validate_parser, show_parser, diff_parser, upload_parser]:
         subparser.add_argument("file_path", type=str, help="Path to the file with birthdays")
 
-    for subparser in [validate_parser, show_parser, gshow_parser]:
+    upload_parser.add_argument(
+        "-f", "--force", action="store_true", help="Force upload even if there are no differences"
+    )
+    upload_parser.add_argument("-y", "--yes", action="store_true", help="Do not ask for confirmation")
+
+    for subparser in [validate_parser, show_parser, gshow_parser, diff_parser, upload_parser]:
+        subparser.add_argument("-v", "--verbose", action="count", default=0)
         for key, value in config.get_public_vars().items():
-            if key == "verbose":
-                subparser.add_argument("-v", "--verbose", action="count", default=0)
-            else:
+            if key != "verbose":
                 subparser.add_argument(
                     f"--{key.replace('_', '-')}",
                     type=type(value),
                 )
-    args_dict = vars(parser.parse_args())
-    command = args_dict.pop("command")
-    sort_type = args_dict.pop("sort_type", None)
-    sort_type = BirthdayEvent.SortTypes(sort_type) if sort_type else None
-    file_path = args_dict.pop("file_path", None)
+    args = parser.parse_args()
+    args_dict = vars(args)
 
-    args_dict_no_nones = {k: v for k, v in args_dict.items() if v is not None}
+    args_dict_for_config = copy.deepcopy(args_dict)
+    for key in ["command", "sort_type", "file_path", "force", "yes"]:
+        args_dict_for_config.pop(key, None)
+    args_dict_no_nones = {k: v for k, v in args_dict_for_config.items() if v is not None}
     try:
         config.set_public_vars(args_dict_no_nones)
     except Exception as e:
@@ -107,15 +115,15 @@ if __name__ == "__main__":
     if config.verbose:
         print(f"Configuration:\n---\n{yaml.dump(config.get_public_vars())}---")
 
-    if file_path is not None:
+    if "file_path" in args_dict:
         try:
-            reader = FileReader(config, file_path)
+            reader = FileReader(config, args.file_path)
             file_events = reader.events
         except Exception as e:
             print(Colorize.fail(e))
             exit(2)
 
-    if command in ["gshow", "diff"]:
+    if args.command in ["gshow", "diff", "upload"]:
         try:
             gc_api = GoogleCalendarApi(config)
             google_events = gc_api.get_events()
@@ -123,13 +131,51 @@ if __name__ == "__main__":
             print(Colorize.fail(e))
             exit(3)
 
-    match command:
+    match args.command:
         case "validate":
-            print(Colorize.success(f"File {file_path} is valid!"))
+            print(Colorize.success(f"File {args.file_path} is valid!"))
             exit(0)
         case "show":
-            show(file_events, sort_type)
+            show(file_events, BirthdayEvent.SortTypes(args.sort_type))
         case "gshow":
-            show(google_events, sort_type)
+            show(google_events, BirthdayEvent.SortTypes(args.sort_type))
         case "diff":
             diff(config, file_events=file_events, google_events=google_events)
+        case "upload":
+            print("---------------------------------")
+            diffs_num = diff(config, file_events=file_events, google_events=google_events)
+            print("---------------------------------")
+
+            if diffs_num == 0 and not args.force:
+                print(Colorize.success("No differences found. Nothing to upload. Exiting."))
+                exit(0)
+
+            print(
+                Colorize.warning(
+                    f"Do you want to upload events from file to Google Calendar?\n"
+                    f"All events in '{config.calendar_name}' calendar will be deleted "
+                    f"and replaced with events from file."
+                )
+            )
+
+            if not args.yes:
+                while True:
+                    user_input = input(
+                        Colorize.warning("Press 'y' to continue or 'n' to cancel, then press 'Enter':")
+                    ).lower()
+                    if user_input not in ["y", "n"]:
+                        print(Colorize.fail("Invalid input. Please try again."))
+                        continue
+                    break
+                if user_input == "n":
+                    print(Colorize.warning("Upload cancelled."))
+                    exit(0)
+
+            try:
+                gc_api = GoogleCalendarApi(config)
+                gc_api.delete_all_events(google_events)
+                gc_api.upload_events(file_events)
+            except Exception as e:
+                print(Colorize.fail(e))
+                exit(15)
+            print(Colorize.success("Events uploaded successfully!"))
