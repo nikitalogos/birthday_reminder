@@ -1,5 +1,6 @@
 import argparse
 import copy
+import traceback
 
 import yaml
 
@@ -28,6 +29,13 @@ def show(events: list[BirthdayEvent], sort_type: BirthdayEvent.SortTypes):
 
     events_sorted = BirthdayEvent.sort_events(events, sort_type)
     print_events(events_sorted)
+
+
+def print_error_and_exit(args, e: Exception, exit_code: int):
+    print(Colorize.fail(e))
+    if args.verbose >= 3:
+        traceback.print_exc()
+    exit(exit_code)
 
 
 def diff(config, file_events, google_events) -> int:
@@ -110,8 +118,7 @@ if __name__ == "__main__":
     try:
         config.set_public_vars(args_dict_no_nones)
     except Exception as e:
-        print(Colorize.fail(e))
-        exit(1)
+        print_error_and_exit(args, e, 1)
     if config.verbose:
         print(f"Configuration:\n---\n{yaml.dump(config.get_public_vars())}---")
 
@@ -120,16 +127,14 @@ if __name__ == "__main__":
             reader = FileReader(config, args.file_path)
             file_events = reader.events
         except Exception as e:
-            print(Colorize.fail(e))
-            exit(2)
+            print_error_and_exit(args, e, 2)
 
     if args.command in ["gshow", "diff", "upload"]:
         try:
             gc_api = GoogleCalendarApi(config)
             google_events = gc_api.get_events()
         except Exception as e:
-            print(Colorize.fail(e))
-            exit(3)
+            print_error_and_exit(args, e, 3)
 
     match args.command:
         case "validate":
@@ -174,6 +179,5 @@ if __name__ == "__main__":
                 gc_api.delete_all_events(google_events)
                 gc_api.upload_events(file_events)
             except Exception as e:
-                print(Colorize.fail(e))
-                exit(15)
+                print_error_and_exit(args, e, 15)
             print(Colorize.success("Events uploaded successfully!"))

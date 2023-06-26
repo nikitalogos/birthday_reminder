@@ -18,6 +18,12 @@ class MainConfig(BaseConfig):
             "use_zodiac_signs": {"type": "boolean", "required": True},
             "use_zodiac_names": {"type": "boolean", "required": True},
             "calendar_name": {"type": "string", "required": True},
+            "use_time": {"type": "boolean", "required": True},
+            "time_zone": {"type": "string", "required": True},
+            "event_time": {"type": "string", "required": True, "regex": r"\d\d:\d\d"},
+            "event_duration": {"type": "string", "required": True, "regex": r"\d\d:\d\d"},
+            "popup_reminders_minutes": {"type": "list", "required": True, "schema": {"type": "integer"}},
+            "email_reminders_minutes": {"type": "list", "required": True, "schema": {"type": "integer"}},
             "verbose": {"type": "integer", "required": True, "min": 0},
         }
         validator = Validator(request_schema)
@@ -35,6 +41,14 @@ class MainConfig(BaseConfig):
         self.use_zodiac_signs = False
         self.use_zodiac_names = False
         self.calendar_name = "Birthday Reminder"
+
+        self.use_time = False
+        self.time_zone = "UTC"
+        self.event_time = "12:00"
+        self.event_duration = "01:00"
+
+        self.popup_reminders_minutes = [10, 60 * 24, 60 * 24 * 2, 60 * 24 * 7]
+        self.email_reminders_minutes = [10, 60 * 24, 60 * 24 * 2, 60 * 24 * 7]
         self.verbose = 0
 
         self._validate(self.get_public_vars())
