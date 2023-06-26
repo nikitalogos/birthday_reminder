@@ -14,9 +14,10 @@ class MainConfig(BaseConfig):
     def _validate(data: dict):
         request_schema = {
             "date_format_year": {"type": "string", "required": True, "regex": r"\S+"},
-            "date_format_no_year": {"type": "string", "required": True, "regex": r"\S+"},
+            # "date_format_no_year": {"type": "string", "required": True, "regex": r"\S+"},
+            "use_zodiac_signs": {"type": "boolean", "required": True},
+            "use_zodiac_names": {"type": "boolean", "required": True},
             "calendar_name": {"type": "string", "required": True},
-            "calendar_color_id": {"type": "integer", "required": True, "min": 1, "max": 24},
             "verbose": {"type": "integer", "required": True, "min": 0},
         }
         validator = Validator(request_schema)
@@ -30,11 +31,10 @@ class MainConfig(BaseConfig):
         super().__init__()
 
         self.date_format_year = "%Y-%m-%d"
-        self.date_format_no_year = "%m-%d"
-
+        # self.date_format_no_year = "%m-%d"  # todo add support for no-year dates
+        self.use_zodiac_signs = False
+        self.use_zodiac_names = False
         self.calendar_name = "Birthday Reminder"
-        self.calendar_color_id = 17  # lavender
-
         self.verbose = 0
 
         self._validate(self.get_public_vars())

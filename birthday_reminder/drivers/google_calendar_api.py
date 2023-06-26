@@ -1,7 +1,6 @@
 import json
 import os.path
 import time
-from datetime import datetime
 
 import tqdm
 from dateutil.relativedelta import relativedelta
@@ -133,9 +132,7 @@ class GoogleCalendarApi:
         google_events = self._get_all_events()
 
         for google_event in google_events:
-            date = datetime.fromisoformat(google_event["start"]["date"])
-            title = google_event["summary"]
-            events.append(BirthdayEvent(date=date, title=title, google_event=google_event))
+            events.append(BirthdayEvent.from_google_event(google_event))
         return events
 
     def _delete_create_one_event(self, google_event: dict, is_create: bool):
@@ -182,7 +179,7 @@ class GoogleCalendarApi:
             next_day = event.date + relativedelta(days=1)
 
             google_event = {
-                "summary": event.title,
+                "summary": event.display_title,
                 "start": {"date": event.date.strftime("%Y-%m-%d")},
                 "end": {"date": next_day.strftime("%Y-%m-%d")},
                 "recurrence": ["RRULE:FREQ=YEARLY"],

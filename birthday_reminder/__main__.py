@@ -150,15 +150,14 @@ if __name__ == "__main__":
                 print(Colorize.success("No differences found. Nothing to upload. Exiting."))
                 exit(0)
 
-            print(
-                Colorize.warning(
-                    f"Do you want to upload events from file to Google Calendar?\n"
-                    f"All events in '{config.calendar_name}' calendar will be deleted "
-                    f"and replaced with events from file."
-                )
-            )
-
             if not args.yes:
+                print(
+                    Colorize.warning(
+                        f"Do you want to upload events from file to Google Calendar?\n"
+                        f"All events in '{config.calendar_name}' calendar will be deleted "
+                        f"and replaced with events from file."
+                    )
+                )
                 while True:
                     user_input = input(
                         Colorize.warning("Press 'y' to continue or 'n' to cancel, then press 'Enter':")

@@ -33,7 +33,7 @@ class ParseError(TextLine):
 
 class FileReader:
     @staticmethod
-    def _parse_lines(lines):
+    def _parse_lines(config, lines):
         dates: list[BirthdayLine] = []
         errors: list[ParseError] = []
         text_lines: list[TextLine] = []
@@ -71,7 +71,7 @@ class FileReader:
                     add_error(f'Wrong date format: "{date_str}". Expected one of: YYYY-MM-DD, MM-DD')
                     continue
 
-            be = BirthdayEvent(date, title)
+            be = BirthdayEvent(date, title, config=config)
             bl = BirthdayLine(idx, line_no_end, be)
             dates.append(bl)
             text_lines.append(bl)
@@ -101,7 +101,7 @@ class FileReader:
     def __init__(self, config, file_path):
         with open(file_path) as f:
             lines = f.readlines()
-        dates, errors, text_lines = self._parse_lines(lines)
+        dates, errors, text_lines = self._parse_lines(config, lines)
 
         self._visualize_parsed(config, dates, errors, text_lines)
         if len(errors) > 0:
