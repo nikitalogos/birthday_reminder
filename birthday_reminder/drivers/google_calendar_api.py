@@ -180,6 +180,7 @@ class GoogleCalendarApi:
 
             google_event = {
                 "summary": event.display_title,
+                "description": event.description_for_google_calendar,
                 "start": {"date": event.date.strftime("%Y-%m-%d")},
                 "end": {"date": next_day.strftime("%Y-%m-%d")},
                 "recurrence": ["RRULE:FREQ=YEARLY"],

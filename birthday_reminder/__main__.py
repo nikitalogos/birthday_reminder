@@ -171,7 +171,6 @@ if __name__ == "__main__":
                     exit(0)
 
             try:
-                gc_api = GoogleCalendarApi(config)
                 gc_api.delete_all_events(google_events)
                 gc_api.upload_events(file_events)
             except Exception as e:
