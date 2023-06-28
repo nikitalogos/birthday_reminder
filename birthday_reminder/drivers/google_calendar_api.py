@@ -13,6 +13,7 @@ from googleapiclient.errors import HttpError
 
 from ..birthday_event import BirthdayEvent
 from ..configs.main_config import MainConfig
+from ..utils.colorize import Colorize
 
 
 class GoogleApiAuth:
@@ -30,6 +31,16 @@ class GoogleApiAuth:
         self.creds = self._authorize()
 
     def _load_secret_info(self) -> dict:
+        if not os.path.exists(self.secret_file):
+            raise FileNotFoundError(
+                f"Google secret file not found at {self.secret_file}!\n"
+                + Colorize.warning(
+                    "It seems that you executed command that requires authorization in Google Api.\n"
+                    "To learn how to authorize, read the README.md.\n"
+                    "You can also continue using the program without Google integration, "
+                    "but some features will be unavailable."
+                )
+            )
         with open(self.secret_file) as f:
             return json.load(f)
 
