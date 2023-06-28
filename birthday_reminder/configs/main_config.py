@@ -13,7 +13,7 @@ class MainConfig(BaseConfig):
     @staticmethod
     def _validate(data: dict):
         request_schema = {
-            "date_format_year": {"type": "string", "required": True, "regex": r"\S+"},
+            # "date_format_year": {"type": "string", "required": True, "regex": r"\S+"},
             # "date_format_no_year": {"type": "string", "required": True, "regex": r"\S+"},
             "use_zodiac_signs": {"type": "boolean", "required": True},
             "use_zodiac_names": {"type": "boolean", "required": True},
@@ -36,8 +36,8 @@ class MainConfig(BaseConfig):
     def __init__(self):
         super().__init__()
 
-        self.date_format_year = "%Y-%m-%d"
-        # self.date_format_no_year = "%m-%d"  # todo add support for no-year dates
+        # self.date_format_year = "%Y-%m-%d"  # won't support fancy formats for now. Maybe later.
+        # self.date_format_no_year = "%m-%d"
         self.use_zodiac_signs = False
         self.use_zodiac_names = False
         self.calendar_name = "Birthday Reminder"

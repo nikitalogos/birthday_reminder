@@ -31,13 +31,6 @@ def show(events: list[BirthdayEvent], sort_type: BirthdayEvent.SortTypes):
     print_events(events_sorted)
 
 
-def print_error_and_exit(args, e: Exception, exit_code: int):
-    print(Colorize.fail(e))
-    if args.verbose >= 3:
-        traceback.print_exc()
-    exit(exit_code)
-
-
 def diff(config, file_events, google_events) -> int:
     file_events_set = set(file_events)
     # impossible, already checked in FileReader
@@ -75,6 +68,13 @@ def diff(config, file_events, google_events) -> int:
         print_events(list(common_events))
 
     return len(file_only_events) + len(google_only_events)
+
+
+def print_error_and_exit(args, e: Exception, exit_code: int):
+    print(Colorize.fail(e))
+    if args.verbose >= 3:
+        traceback.print_exc()
+    exit(exit_code)
 
 
 if __name__ == "__main__":

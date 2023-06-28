@@ -64,14 +64,17 @@ class FileReader:
 
             try:
                 date = datetime.strptime(date_str, "%Y-%m-%d")
+                has_year = True
             except ValueError:
                 try:
                     date = datetime.strptime(date_str, "%m-%d")
+                    date = date.replace(year=1900)  # it's already 1900 by default, but just to be explicit
+                    has_year = False
                 except ValueError:
                     add_error(f'Wrong date format: "{date_str}". Expected one of: YYYY-MM-DD, MM-DD')
                     continue
 
-            be = BirthdayEvent(date, title, config=config)
+            be = BirthdayEvent(date, title, has_year=has_year, config=config)
             bl = BirthdayLine(idx, line_no_end, be)
             dates.append(bl)
             text_lines.append(bl)
