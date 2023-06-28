@@ -150,7 +150,7 @@ class BirthdayEvent:
             title=title,
             has_year=has_year,
             google_event=google_event,
-            is_manually_created_google_event=cls._UNIQUE_TAG not in description
+            is_manually_created_google_event=cls._UNIQUE_TAG not in description,
         )
 
     @enum.unique

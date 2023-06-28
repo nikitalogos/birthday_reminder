@@ -22,7 +22,8 @@ class GoogleApiAuth:
     _DEFAULT_SECRET_FILE = os.path.join(_PROJECT_DIR, ".auth/google_secret.json")
     _DEFAULT_TOKEN_FILE = os.path.join(_PROJECT_DIR, ".auth/google_token.json")
 
-    def __init__(self, secret_file: str = _DEFAULT_SECRET_FILE, token_file: str = _DEFAULT_TOKEN_FILE):
+    def __init__(self, port: int, secret_file: str = _DEFAULT_SECRET_FILE, token_file: str = _DEFAULT_TOKEN_FILE):
+        self.port = port
         self.secret_file = secret_file
         self.token_file = token_file
 
@@ -51,7 +52,7 @@ class GoogleApiAuth:
             else:
                 secret_info = self._load_secret_info()
                 flow = InstalledAppFlow.from_client_config(client_config=secret_info, scopes=self.SCOPES)
-                creds = flow.run_local_server(port=58585)
+                creds = flow.run_local_server(port=self.port)
 
             self._save_token(creds)
         return creds
@@ -65,7 +66,7 @@ class GoogleCalendarApi:
     def __init__(self, config: MainConfig):
         self.config = config
 
-        creds = GoogleApiAuth().creds
+        creds = GoogleApiAuth(config.google_oauth_port).creds
         self.service = build("calendar", "v3", credentials=creds)
 
         self.br_calendar = self._create_br_calendar_if_not_exist()

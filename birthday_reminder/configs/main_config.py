@@ -18,6 +18,7 @@ class MainConfig(BaseConfig):
             "use_zodiac_signs": {"type": "boolean", "required": True},
             "use_zodiac_names": {"type": "boolean", "required": True},
             "calendar_name": {"type": "string", "required": True},
+            "google_oauth_port": {"type": "integer", "required": True, "min": 1025, "max": 65535},
             "use_time": {"type": "boolean", "required": True},
             "time_zone": {"type": "string", "required": True},
             "event_time": {"type": "string", "required": True, "regex": r"\d\d:\d\d"},
@@ -41,6 +42,8 @@ class MainConfig(BaseConfig):
         self.use_zodiac_signs = False
         self.use_zodiac_names = False
         self.calendar_name = "Birthday Reminder"
+
+        self.google_oauth_port = 58585
 
         self.use_time = False
         self.time_zone = "UTC"
