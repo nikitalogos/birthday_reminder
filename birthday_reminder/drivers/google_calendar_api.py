@@ -98,13 +98,14 @@ class GoogleCalendarApi:
 
         calendar_prefs = {
             "summary": self.config.calendar_name,
-            # 'colorId': str(self.config.calendar_color_id),  # todo doesn't work
-            # 'defaultReminders': [
-            #     {'method': 'email', 'minutes': 7 * 24 * 60},  # 1 week before
-            #     {'method': 'email', 'minutes': 24 * 60},  # 1 day before
-            #     {'method': 'popup', 'minutes': 0},  # On the day of event
-            # ],
+            # unfortunately, setting 'colorId' doesn't work
+            # 'defaultReminders' also doesn't work. It's a bug in Google Api.
         }
+
+        if self.config.verbose:
+            print("---\nbr_calendar:\n" + json.dumps(br_calendar, indent=4))
+            print("---\ncalendar_prefs:\n" + json.dumps(calendar_prefs, indent=4))
+            print("---\n")
 
         if br_calendar is None:
             print(f"Creating calendar '{name}'...")
@@ -196,6 +197,13 @@ class GoogleCalendarApi:
             "summary": event.display_title,
             "description": event.description_for_google_calendar,
             "recurrence": ["RRULE:FREQ=YEARLY"],
+            "reminders": {
+                "useDefault": False,
+                "overrides": [
+                    {"method": "popup", "minutes": minutes} for minutes in self.config.popup_reminders_minutes
+                ]
+                + [{"method": "email", "minutes": minutes} for minutes in self.config.email_reminders_minutes],
+            },
         }
 
         if self.config.use_time:

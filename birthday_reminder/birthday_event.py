@@ -29,6 +29,11 @@ class BirthdayEvent:
         return now.year - self.date.year - (not was_birthday_this_year)
 
     @property
+    def is_birthday_today(self):
+        now = datetime.now()
+        return (now.month, now.day) == (self.date.month, self.date.day)
+
+    @property
     def next_birthday(self):
         next_birthday = self.date + relativedelta(years=self.age + 1)
         return next_birthday
@@ -103,24 +108,33 @@ class BirthdayEvent:
             )
             return f"{self.date.strftime('%Y-%m-%d')} - {self.display_title} - {warn_text}"
 
+        if self.is_birthday_today:
+            title_birthday_str = Colorize.success(f"{self.display_title} celebrates birthday today!")
+        else:
+            title_birthday_str = self.display_title
+        days_str = "days" if self.days_until_next_birthday != 1 else "day"
         if self.has_year:
             return (
-                f"{self.date.strftime('%Y-%m-%d')} - {self.display_title} - {Colorize.info(self.age)} years old "
-                f"(Will be {Colorize.info(self.age + 1)} in {Colorize.info(self.days_until_next_birthday)} days)"
+                f"{self.date.strftime('%Y-%m-%d')} - {title_birthday_str} - {Colorize.info(self.age)} years old "
+                f"(Will be {Colorize.info(self.age + 1)} in {Colorize.info(self.days_until_next_birthday)} {days_str})"
             )
         else:
             return (
-                f"{self.date.strftime(f'{self._NO_YEAR_PLACEHOLDER}-%m-%d')} - {self.display_title} "
-                f"(Next birthday in {Colorize.info(self.days_until_next_birthday)} days)"
+                f"{self.date.strftime(f'{self._NO_YEAR_PLACEHOLDER}-%m-%d')} - {title_birthday_str} "
+                f"(Next birthday in {Colorize.info(self.days_until_next_birthday)} {days_str})"
             )
+
+    @property
+    def _signature(self):
+        return self.date, self.title, self.has_year
 
     def __eq__(self, other):
         if not isinstance(other, BirthdayEvent):
             return NotImplemented
-        return (self.date, self.title, self.has_year) == (other.date, other.title, self.has_year)
+        return self._signature == other._signature
 
     def __hash__(self):
-        return hash((self.date, self.title))
+        return hash(self._signature)
 
     @classmethod
     def from_google_event(cls, google_event):

@@ -34,6 +34,15 @@ class MainConfig(BaseConfig):
             errors_str = yaml.dump(errors_dict)
             raise Exception(f"Validation failed:\n---\n{errors_str}---")
 
+        max_reminders_per_event = 5
+        if len(data["popup_reminders_minutes"] + data["email_reminders_minutes"]) > max_reminders_per_event:
+            l1 = len(data["popup_reminders_minutes"])
+            l2 = len(data["email_reminders_minutes"])
+            raise Exception(
+                f"Too many reminders. Max reminders number is {max_reminders_per_event}.\n"
+                f"Got {l1} in 'popup_reminders_minutes' and {l2} in 'email_reminders_minutes', total: {l1 + l2}"
+            )
+
     def __init__(self):
         super().__init__()
 
@@ -50,8 +59,8 @@ class MainConfig(BaseConfig):
         self.event_time = "12:00"
         self.event_duration = "01:00"
 
-        self.popup_reminders_minutes = [10, 60 * 24, 60 * 24 * 2, 60 * 24 * 7]
-        self.email_reminders_minutes = [10, 60 * 24, 60 * 24 * 2, 60 * 24 * 7]
+        self.popup_reminders_minutes = [10, 60 * 24 * 7]
+        self.email_reminders_minutes = [10, 60 * 23, 60 * 24 * 7]
         self.verbose = 0
 
         self._validate(self.get_public_vars())
