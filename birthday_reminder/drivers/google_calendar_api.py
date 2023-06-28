@@ -1,10 +1,8 @@
 import json
 import os.path
 import time
-from datetime import datetime
 
 import tqdm
-from dateutil.relativedelta import relativedelta
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -192,50 +190,6 @@ class GoogleCalendarApi:
         for event in tqdm.tqdm(events, desc="Deleting events from Google Calendar"):
             self._delete_one_event(event.google_event)  # type: ignore # mypy doesn't see assert above
 
-    def _make_google_event(self, event: BirthdayEvent) -> dict:
-        google_event = {
-            "summary": event.display_title,
-            "description": event.description_for_google_calendar,
-            "recurrence": ["RRULE:FREQ=YEARLY"],
-            "reminders": {
-                "useDefault": False,
-                "overrides": [
-                    {"method": "popup", "minutes": minutes} for minutes in self.config.popup_reminders_minutes
-                ]
-                + [{"method": "email", "minutes": minutes} for minutes in self.config.email_reminders_minutes],
-            },
-        }
-
-        if self.config.use_time:
-            event_time = datetime.strptime(self.config.event_time, "%H:%M")
-            event_time_delta = relativedelta(hours=event_time.hour, minutes=event_time.minute)
-
-            event_duration = datetime.strptime(self.config.event_duration, "%H:%M")
-            event_duration_delta = relativedelta(hours=event_duration.hour, minutes=event_duration.minute)
-
-            start_datetime = event.date + event_time_delta
-            end_datetime = start_datetime + event_duration_delta
-
-            google_event.update(
-                {
-                    "start": {
-                        "dateTime": start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
-                        "timeZone": self.config.time_zone,
-                    },
-                    "end": {"dateTime": end_datetime.strftime("%Y-%m-%dT%H:%M:%S"), "timeZone": self.config.time_zone},
-                }
-            )
-        else:
-            next_day = event.date + relativedelta(days=1)
-
-            google_event.update(
-                {
-                    "start": {"date": event.date.strftime("%Y-%m-%d")},
-                    "end": {"date": next_day.strftime("%Y-%m-%d")},
-                }
-            )
-        return google_event
-
     def upload_events(self, events: list[BirthdayEvent]):
         for event in tqdm.tqdm(events, desc="Uploading events to Google Calendar"):
-            self._create_one_event(self._make_google_event(event))
+            self._create_one_event(event.to_google_event())
