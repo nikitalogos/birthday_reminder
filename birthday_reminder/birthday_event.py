@@ -1,4 +1,5 @@
 import copy
+import dataclasses
 import enum
 from dataclasses import dataclass
 from datetime import datetime
@@ -256,3 +257,65 @@ class BirthdayEvent:
                 return sorted(events, key=lambda d: d.days_until_next_birthday)
             case _:
                 raise ValueError(f"Unknown sort type: {sort_type}")
+
+
+class BirthdayEventSignature(BirthdayEvent):
+    def __eq__(self, other):
+        if not isinstance(other, BirthdayEvent):
+            return NotImplemented
+        return self._signature == other._signature
+
+    def __hash__(self):
+        return hash(self._signature)
+
+    @classmethod
+    def from_event(cls, event):
+        return cls(
+            date=event.date,
+            title=event.title,
+            has_year=event.has_year,
+            config=event.config,
+            google_event=event.google_event,
+            is_manually_created_google_event=event.is_manually_created_google_event,
+        )
+
+
+@dataclass
+class ComparisonResult:
+    file_only_events: set[BirthdayEvent] = dataclasses.field(default_factory=set)
+    google_only_events: set[BirthdayEvent] = dataclasses.field(default_factory=set)
+    equal_events: set[BirthdayEvent] = dataclasses.field(default_factory=set)
+    updated_events: set[BirthdayEvent] = dataclasses.field(default_factory=set)
+
+    @property
+    def has_changes(self):
+        return any([self.file_only_events, self.google_only_events, self.updated_events])
+
+
+def compare_events_file_and_google(file_events, google_events) -> ComparisonResult:
+    file_events_set = set(file_events)
+    # impossible, already checked in FileReader
+    assert len(file_events_set) == len(file_events), "File contains duplicates"
+
+    google_events_set = set(google_events)
+    if len(google_events_set) != len(google_events):
+        print(
+            Colorize.warning(
+                "Google Calendar contains duplicates. Did you edit the calendar manually? "
+                "This is not an error, duplicates will be ignored. They will go away after you run 'upload' command."
+            )
+        )
+
+    result = ComparisonResult()
+
+    result.equal_events = file_events_set & google_events_set
+    file_events_set -= result.equal_events
+    google_events_set -= result.equal_events
+
+    file_events_signature_set = {BirthdayEventSignature.from_event(e) for e in file_events_set}
+    google_events_signature_set = {BirthdayEventSignature.from_event(e) for e in google_events_set}
+
+    result.updated_events = file_events_signature_set & google_events_signature_set
+    result.file_only_events = file_events_signature_set - google_events_signature_set
+    result.google_only_events = google_events_signature_set - file_events_signature_set
+    return result

@@ -4,7 +4,7 @@ import traceback
 
 import yaml
 
-from .birthday_event import BirthdayEvent
+from .birthday_event import BirthdayEvent, compare_events_file_and_google
 from .configs.main_config import MainConfig
 from .drivers.file_reader import FileReader
 from .drivers.google_calendar_api import GoogleCalendarApi
@@ -31,43 +31,32 @@ def show(events: list[BirthdayEvent], sort_type: BirthdayEvent.SortTypes):
     print_events(events_sorted)
 
 
-def diff(config, file_events, google_events) -> int:
-    file_events_set = set(file_events)
-    # impossible, already checked in FileReader
-    assert len(file_events_set) == len(file_events), "File contains duplicates"
-
-    google_events_set = set(google_events)
-    if len(google_events_set) != len(google_events):
-        print(
-            Colorize.warning(
-                "Google Calendar contains duplicates. Did you edit the calendar manually? "
-                "This is not an error, duplicates will be ignored. They will go away after you run 'upload' command."
-            )
-        )
-
-    common_events = file_events_set & google_events_set
-    file_only_events = file_events_set - google_events_set
-    google_only_events = google_events_set - file_events_set
+def diff(config, file_events, google_events) -> bool:
+    r = compare_events_file_and_google(file_events=file_events, google_events=google_events)
 
     print(
         Colorize.info(
-            f"File has {len(file_events_set)} events, Google Calendar has {len(google_events_set)} events.\n"
-            f"{len(common_events)} events are common,\n"
-            f"{len(file_only_events)} events are only in file,\n"
-            f"{len(google_only_events)} events are only in Google Calendar.\n"
+            f"File has {len(file_events)} events, Google Calendar has {len(google_events)} events.\n"
+            f"{len(r.equal_events)} events are equal,\n"
+            f"{len(r.updated_events)} events are updated,\n"
+            f"{len(r.file_only_events)} events are only in file,\n"
+            f"{len(r.google_only_events)} events are only in Google Calendar.\n"
         )
     )
-    if len(file_only_events) > 0:
+    if config.verbose and len(r.equal_events) > 0:
+        print(Colorize.info("Equal events:"))
+        print_events(list(r.equal_events))
+    if len(r.updated_events) > 0:
+        print(Colorize.warning("Updated events:"))
+        print_events(list(r.updated_events))
+    if len(r.file_only_events) > 0:
         print(Colorize.warning("Events only in file:"))
-        print_events(list(file_only_events))
-    if len(google_only_events) > 0:
+        print_events(list(r.file_only_events))
+    if len(r.google_only_events) > 0:
         print(Colorize.warning("Events only in Google Calendar:"))
-        print_events(list(google_only_events))
-    if config.verbose and len(common_events) > 0:
-        print(Colorize.info("Common events:"))
-        print_events(list(common_events))
+        print_events(list(r.google_only_events))
 
-    return len(file_only_events) + len(google_only_events)
+    return r.has_changes
 
 
 def print_error_and_exit(args, e: Exception, exit_code: int):
@@ -148,10 +137,10 @@ if __name__ == "__main__":
             diff(config, file_events=file_events, google_events=google_events)
         case "upload":
             print("---------------------------------")
-            diffs_num = diff(config, file_events=file_events, google_events=google_events)
+            has_changes = diff(config, file_events=file_events, google_events=google_events)
             print("---------------------------------")
 
-            if diffs_num == 0 and not args.force:
+            if not has_changes and not args.force:
                 print(Colorize.success("No differences found. Nothing to upload. Exiting."))
                 exit(0)
 
