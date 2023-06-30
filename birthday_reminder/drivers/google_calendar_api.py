@@ -1,6 +1,8 @@
+import enum
 import json
 import os.path
 import time
+from typing import Iterable
 
 import tqdm
 from google.auth.transport.requests import Request
@@ -9,7 +11,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from ..birthday_event import BirthdayEvent
+from ..birthday_event import BirthdayEvent, BirthdayEventSignature
 from ..configs.main_config import MainConfig
 from ..utils.colorize import Colorize
 
@@ -151,17 +153,28 @@ class GoogleCalendarApi:
             events.append(BirthdayEvent.from_google_event(google_event))
         return events
 
-    def _delete_create_one_event(self, google_event: dict, is_create: bool):
+    @enum.unique
+    class EventActions(enum.Enum):
+        CREATE = enum.auto()
+        UPDATE = enum.auto()
+        DELETE = enum.auto()
+
+    def _process_one_event(self, google_event: dict, action: EventActions):
         delays = [1, 2, 4, 8, 16, 32, 64, 128]
 
         for n in range(len(delays)):
             try:
-                if is_create:
-                    self.service.events().insert(calendarId=self.br_calendar["id"], body=google_event).execute()
-                else:
-                    self.service.events().delete(
-                        calendarId=self.br_calendar["id"], eventId=google_event["id"]
-                    ).execute()
+                match action:
+                    case self.EventActions.CREATE:
+                        self.service.events().insert(calendarId=self.br_calendar["id"], body=google_event).execute()
+                    case self.EventActions.UPDATE:
+                        self.service.events().update(
+                            calendarId=self.br_calendar["id"], eventId=google_event["id"], body=google_event
+                        ).execute()
+                    case self.EventActions.DELETE:
+                        self.service.events().delete(
+                            calendarId=self.br_calendar["id"], eventId=google_event["id"]
+                        ).execute()
                 break
             except Exception as e:
                 # if user creates exception from recurring event, it will cause 410 error
@@ -178,18 +191,38 @@ class GoogleCalendarApi:
                 print(f"Request failed with {e}, retrying in {delays[n]} seconds...")
                 time.sleep(delays[n])
 
-    def _delete_one_event(self, google_event: dict):
-        self._delete_create_one_event(google_event, is_create=False)
-
     def _create_one_event(self, google_event: dict):
-        self._delete_create_one_event(google_event, is_create=True)
+        self._process_one_event(google_event, self.EventActions.CREATE)
 
-    def delete_all_events(self, events: list[BirthdayEvent]):
-        assert all(event.google_event is not None for event in events), "All events must have 'google_event' attribute"
+    def _update_one_event(self, google_event: dict):
+        self._process_one_event(google_event, self.EventActions.UPDATE)
 
-        for event in tqdm.tqdm(events, desc="Deleting events from Google Calendar"):
-            self._delete_one_event(event.google_event)  # type: ignore # mypy doesn't see assert above
+    def _delete_one_event(self, google_event: dict):
+        self._process_one_event(google_event, self.EventActions.DELETE)
 
-    def upload_events(self, events: list[BirthdayEvent]):
-        for event in tqdm.tqdm(events, desc="Uploading events to Google Calendar"):
+    def create_events(self, file_events: Iterable[BirthdayEvent]):
+        for event in tqdm.tqdm(file_events, desc="Creating events in Google Calendar"):
             self._create_one_event(event.to_google_event())
+
+    def update_events(self, file_events: list[BirthdayEvent], google_events: list[BirthdayEvent]):
+        assert all(
+            BirthdayEventSignature.from_event(file_events[i]) == BirthdayEventSignature.from_event(google_events[i])
+            for i in range(len(file_events))
+        ), "Expected list of corresponding events"
+
+        new_events = []
+        for idx in range(len(file_events)):
+            new_event = file_events[idx].to_google_event()
+            new_event["id"] = google_events[idx].google_event["id"]  # type: ignore # raising exception if None is ok
+            new_events.append(new_event)
+
+        for new_event in tqdm.tqdm(new_events, desc="Updating events in Google Calendar"):
+            self._update_one_event(new_event)
+
+    def delete_events(self, google_events: Iterable[BirthdayEvent]):
+        assert all(
+            event.google_event is not None for event in google_events
+        ), "All events must have 'google_event' attribute"
+
+        for event in tqdm.tqdm(google_events, desc="Deleting events from Google Calendar"):
+            self._delete_one_event(event.google_event)  # type: ignore # mypy doesn't see assert above

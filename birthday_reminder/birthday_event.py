@@ -292,30 +292,33 @@ class ComparisonResult:
         return any([self.file_only_events, self.google_only_events, self.updated_events])
 
 
-def compare_events_file_and_google(file_events, google_events) -> ComparisonResult:
+def compare_events_file_and_google(
+    file_events: list[BirthdayEvent], google_events: list[BirthdayEvent]
+) -> ComparisonResult:
     file_events_set = set(file_events)
     # impossible, already checked in FileReader
     assert len(file_events_set) == len(file_events), "File contains duplicates"
 
     google_events_set = set(google_events)
     if len(google_events_set) != len(google_events):
-        print(
-            Colorize.warning(
-                "Google Calendar contains duplicates. Did you edit the calendar manually? "
-                "This is not an error, duplicates will be ignored. They will go away after you run 'upload' command."
-            )
+        duplicate_events = [e for e in google_events if google_events.count(e) > 1]
+        duplicate_events_str = "\n".join([str(e) for e in duplicate_events])
+        assert len(google_events_set) < len(google_events), (
+            "Google Calendar contains duplicates. Did you edit the calendar manually?\n"
+            "Please delete duplicates manually and try again.\n"
+            f"Duplicate events:\n{duplicate_events_str}"
         )
 
-    result = ComparisonResult()
+    cmp_result = ComparisonResult()
 
-    result.equal_events = file_events_set & google_events_set
-    file_events_set -= result.equal_events
-    google_events_set -= result.equal_events
+    cmp_result.equal_events = file_events_set & google_events_set
+    file_events_set -= cmp_result.equal_events
+    google_events_set -= cmp_result.equal_events
 
     file_events_signature_set = {BirthdayEventSignature.from_event(e) for e in file_events_set}
     google_events_signature_set = {BirthdayEventSignature.from_event(e) for e in google_events_set}
 
-    result.updated_events = file_events_signature_set & google_events_signature_set
-    result.file_only_events = file_events_signature_set - google_events_signature_set
-    result.google_only_events = google_events_signature_set - file_events_signature_set
-    return result
+    cmp_result.updated_events = file_events_signature_set & google_events_signature_set
+    cmp_result.file_only_events = file_events_signature_set - google_events_signature_set
+    cmp_result.google_only_events = google_events_signature_set - file_events_signature_set
+    return cmp_result

@@ -4,7 +4,7 @@ import traceback
 
 import yaml
 
-from .birthday_event import BirthdayEvent, compare_events_file_and_google
+from .birthday_event import BirthdayEvent, ComparisonResult, compare_events_file_and_google
 from .configs.main_config import MainConfig
 from .drivers.file_reader import FileReader
 from .drivers.google_calendar_api import GoogleCalendarApi
@@ -31,9 +31,7 @@ def show(events: list[BirthdayEvent], sort_type: BirthdayEvent.SortTypes):
     print_events(events_sorted)
 
 
-def diff(config, file_events, google_events) -> bool:
-    r = compare_events_file_and_google(file_events=file_events, google_events=google_events)
-
+def print_diff(r: ComparisonResult, config: MainConfig):
     print(
         Colorize.info(
             f"File has {len(file_events)} events, Google Calendar has {len(google_events)} events.\n"
@@ -55,8 +53,6 @@ def diff(config, file_events, google_events) -> bool:
     if len(r.google_only_events) > 0:
         print(Colorize.warning("Events only in Google Calendar:"))
         print_events(list(r.google_only_events))
-
-    return r.has_changes
 
 
 def print_error_and_exit(args, e: Exception, exit_code: int):
@@ -90,7 +86,7 @@ if __name__ == "__main__":
     upload_parser.add_argument("-y", "--yes", action="store_true", help="Do not ask for confirmation")
 
     for subparser in [validate_parser, show_parser, gshow_parser, diff_parser, upload_parser]:
-        subparser.add_argument("-v", "--verbose", action="count", default=0)
+        subparser.add_argument("-v", "--verbose", action="count", default=0, help="Display more information")
         for key, value in config.get_public_vars().items():
             if key != "verbose":
                 subparser.add_argument(
@@ -134,24 +130,18 @@ if __name__ == "__main__":
         case "gshow":
             show(google_events, BirthdayEvent.SortTypes(args.sort_type))
         case "diff":
-            diff(config, file_events=file_events, google_events=google_events)
+            cmp_result = compare_events_file_and_google(file_events=file_events, google_events=google_events)
+            print_diff(cmp_result, config)
         case "upload":
+            cmp_result = compare_events_file_and_google(file_events=file_events, google_events=google_events)
             print("---------------------------------")
-            has_changes = diff(config, file_events=file_events, google_events=google_events)
+            print_diff(cmp_result, config)
             print("---------------------------------")
 
-            if not has_changes and not args.force:
-                print(Colorize.success("No differences found. Nothing to upload. Exiting."))
-                exit(0)
-
-            if not args.yes:
-                print(
-                    Colorize.warning(
-                        f"Do you want to upload events from file to Google Calendar?\n"
-                        f"All events in '{config.calendar_name}' calendar will be deleted "
-                        f"and replaced with events from file."
-                    )
-                )
+            def ask_user_proceed_or_exit(string: str):
+                if args.yes:
+                    return
+                print(Colorize.warning(string))
                 while True:
                     user_input = input(
                         Colorize.warning("Press 'y' to continue or 'n' to cancel, then press 'Enter':")
@@ -164,9 +154,62 @@ if __name__ == "__main__":
                     print(Colorize.warning("Upload cancelled."))
                     exit(0)
 
-            try:
-                gc_api.delete_all_events(google_events)
-                gc_api.upload_events(file_events)
-            except Exception as e:
-                print_error_and_exit(args, e, 15)
-            print(Colorize.success("Events uploaded successfully!"))
+            if args.force:
+                print(
+                    Colorize.warning(
+                        "Performing force upload.\n"
+                        f"All events in '{config.calendar_name}' calendar will be deleted "
+                        f"and replaced with events from file."
+                    )
+                )
+                try:
+                    gc_api.delete_events(google_events)
+                    gc_api.create_events(file_events)
+                except Exception as e:
+                    print_error_and_exit(args, e, 15)
+                print(Colorize.success("Events uploaded successfully!"))
+                exit(0)
+
+            if not cmp_result.has_changes:
+                print(Colorize.success("No differences found. Nothing to upload. Exiting."))
+                exit(0)
+            else:
+                changes_str = (
+                    f"{len(cmp_result.google_only_events)} events will be deleted,\n"
+                    f"{len(cmp_result.updated_events)} events will be updated,\n"
+                    f"{len(cmp_result.file_only_events)} events will be created."
+                )
+
+                ask_user_proceed_or_exit(
+                    "Do you want to upload events from file to Google Calendar?\n" + changes_str
+                )
+                try:
+                    google_events_aligned = []
+                    file_events_aligned = []
+
+                    def check_duplicates(events, target: str):
+                        """This should never happen because duplicates checks are performed before"""
+                        duplicate_events_str = "\n".join([str(e) for e in events])
+                        assert len(events) == 1, (
+                            f"{target} contains duplicates, updating is not possible.\n"
+                            f"\nDuplicate events:\n{duplicate_events_str}"
+                        )
+
+                    for updated_event in cmp_result.updated_events:
+                        events = [e for e in google_events if e == updated_event]
+                        check_duplicates(events, "Google Calendar")
+                        google_events_aligned += events
+
+                        events = [e for e in file_events if e == updated_event]
+                        check_duplicates(events, "File")
+                        file_events_aligned += events
+
+                    gc_api.delete_events(google_events=[e for e in google_events if e in cmp_result.google_only_events])
+                    gc_api.update_events(file_events=file_events_aligned, google_events=google_events_aligned)
+                    gc_api.create_events(file_events=[e for e in file_events if e in cmp_result.file_only_events])
+                except Exception as e:
+                    print_error_and_exit(args, e, 15)
+                print(Colorize.success("Events uploaded successfully!"))
+                exit(0)
+
+            assert False, "Unreachable code"
