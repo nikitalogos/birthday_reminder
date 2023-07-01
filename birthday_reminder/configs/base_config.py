@@ -1,9 +1,8 @@
 import argparse
 import os
+from typing import Iterable
 
 import yaml
-
-from typing import Iterable
 
 
 class SafeDumperNoAliases(yaml.SafeDumper):
