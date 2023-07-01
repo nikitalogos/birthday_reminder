@@ -4,7 +4,7 @@ import traceback
 
 from .birthday_event import BirthdayEvent, ComparisonResult, compare_events_file_and_google
 from .configs.base_config import add_arguments_to_parser
-from .configs.main_config import DEFAULT_CONFIG_FILE, MainConfig
+from .configs.main_config import MAIN_CONFIG_FILE, MainConfig
 from .drivers.file_reader import FileReader
 from .drivers.google_calendar_api import GoogleCalendarApi
 from .utils.colorize import Colorize
@@ -104,15 +104,15 @@ if __name__ == "__main__":
         try:
             if args.config_file is not None:
                 if args.verbose >= 2:
-                    print(Colorize.info(f"config_file_path provided. Loading config from file: {args.config_file}"))
+                    print(Colorize.info(f"config_file provided. Loading config from file: {args.config_file}"))
                 config.set_file_path(args.config_file)
                 config.load_from_file()
                 if args.verbose >= 2:
                     print(config)
             else:
                 if args.verbose >= 2:
-                    print(Colorize.info("config_file_path not provided. Using default config."))
-                config.set_file_path(DEFAULT_CONFIG_FILE)
+                    print(Colorize.info("config_file not provided. Using default config_file path."))
+                config.set_file_path(MAIN_CONFIG_FILE)
                 config.load_from_file()
                 if args.verbose >= 2:
                     print(config)

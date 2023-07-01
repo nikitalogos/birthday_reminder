@@ -5,7 +5,8 @@ from cerberus import Validator
 
 from .base_config import BaseConfig
 
-DEFAULT_CONFIG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../main_config.yaml")
+DEFAULT_CONFIG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "default_config.yaml")
+MAIN_CONFIG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../main_config.yaml")
 
 
 class MainConfig(BaseConfig):
