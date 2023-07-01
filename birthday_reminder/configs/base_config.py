@@ -1,5 +1,5 @@
 import os
-
+import argparse
 import yaml
 
 
@@ -72,3 +72,27 @@ class BaseConfig:
         public_vars = self.get_public_vars()
         with open(file_path, "w") as outf:
             yaml.dump(public_vars, outf, Dumper=SafeDumperNoAliases)
+
+
+def add_arguments_to_parser(parser: argparse.ArgumentParser, config: BaseConfig):
+    for key, value in config.get_public_vars().items():
+        if key != "verbose":
+            if type(value) in [int, str, float]:
+                parser.add_argument(
+                    f"--{key.replace('_', '-')}",
+                    type=type(value),
+                )
+            elif type(value) == bool:
+                assert value is False, f"Default value for {key} is True. This is not supported"
+                parser.add_argument(
+                    f"--{key.replace('_', '-')}",
+                    action="store_true",
+                )
+            elif type(value) == list:
+                parser.add_argument(
+                    f"--{key.replace('_', '-')}",
+                    type=type(value[0]),
+                    nargs="*",
+                )
+            else:
+                raise NotImplementedError(f"Type {type(value)} is not supported for config variable {key}")

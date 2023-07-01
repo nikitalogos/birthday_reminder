@@ -3,6 +3,7 @@ import copy
 import traceback
 
 from .birthday_event import BirthdayEvent, ComparisonResult, compare_events_file_and_google
+from .configs.base_config import add_arguments_to_parser
 from .configs.main_config import DEFAULT_CONFIG_FILE, MainConfig
 from .drivers.file_reader import FileReader
 from .drivers.google_calendar_api import GoogleCalendarApi
@@ -66,16 +67,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="birthday-reminder", description="Birthday Reminder")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    parser.add_argument("-v", "--verbose", action="count", default=0, help="Display more information")
-
-    parser.add_argument("-c", "--config-file", type=str, help="Path to the config file")
-    for key, value in config.get_public_vars().items():
-        if key != "verbose":
-            parser.add_argument(
-                f"--{key.replace('_', '-')}",
-                type=type(value),
-            )
-
     validate_parser = subparsers.add_parser("validate", description="Just read file and check for errors")
     show_parser = subparsers.add_parser("show", description="Show birthdays from file")
     gshow_parser = subparsers.add_parser("gshow", description="Show birthdays from Google Calendar")
@@ -92,6 +83,11 @@ if __name__ == "__main__":
         "-f", "--force", action="store_true", help="Force upload even if there are no differences"
     )
     upload_parser.add_argument("-y", "--yes", action="store_true", help="Do not ask for confirmation")
+
+    for subparser in [validate_parser, show_parser, gshow_parser, diff_parser, upload_parser]:
+        subparser.add_argument("-v", "--verbose", action="count", default=0, help="Display more information")
+        subparser.add_argument("-c", "--config-file", type=str, help="Path to the config file")
+        add_arguments_to_parser(subparser, config)
 
     args = parser.parse_args()
     args_dict = vars(args)

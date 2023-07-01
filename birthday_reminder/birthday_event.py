@@ -3,8 +3,10 @@ import dataclasses
 import enum
 from dataclasses import dataclass
 from datetime import datetime
+import pytz
 
 from dateutil.relativedelta import relativedelta
+from dateutil.parser import parse as dateutil_parse
 from strenum import StrEnum
 
 from .configs.main_config import MainConfig
@@ -147,10 +149,20 @@ class BirthdayEvent:
             google_event = copy.deepcopy(google_event)
         else:
             google_event = self.to_google_event()
-        google_event.get("reminders", {}).get("overrides", []).sort(key=lambda x: (x["minutes"], x["method"]))
+        reminders = google_event.get("reminders", {}).get("overrides", [])
+        if len(reminders) > 0:
+            google_event["reminders"]["overrides"] = set([(r["minutes"], r["method"]) for r in reminders])
         google_event["description"] = "\n".join(
             [s for s in google_event.get("description", "").split("\n") if not s.startswith(self._GENERATED_BY_STR)]
         )
+        for key in "start", "end":
+            if "dateTime" in google_event[key]:
+                # google returns datetime in UTC, so we need to convert it to local timezone
+                if google_event[key]["dateTime"].endswith("Z"):
+                    dt = dateutil_parse(google_event[key]["dateTime"])
+                    dt = dt.astimezone(pytz.timezone(google_event[key]["timeZone"]))
+                    # remove seconds because of conversion errors for years around 1900
+                    google_event[key]["dateTime"] = dt.strftime("%Y-%m-%dT%H:%M:00")
         return google_event
 
     def __eq__(self, other):
