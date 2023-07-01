@@ -91,7 +91,8 @@ class BirthdayEvent:
         if self.google_event:
             return self.google_event["summary"]
 
-        return f"{self.title}{self._zodiac_str}"
+        assert self.config is not None, "Config is required to display title for non-google event"
+        return f"{self.config.title_prefix}{self.title}{self.config.title_postfix}{self._zodiac_str}"
 
     _UNIQUE_TAG = "#birthday_reminder"
     _DATE_OF_BIRTH_KEY = "Date of birth"
@@ -122,7 +123,7 @@ class BirthdayEvent:
             return f"{self.date.strftime('%Y-%m-%d')} - {self.display_title} - {warn_text}"
 
         if self.is_birthday_today:
-            title_birthday_str = Colorize.success(f"{self.display_title} celebrates birthday today!")
+            title_birthday_str = Colorize.success(f"{self.display_title}. Birthday is today!")
         else:
             title_birthday_str = self.display_title
         days_str = "days" if self.days_until_next_birthday != 1 else "day"
@@ -139,7 +140,7 @@ class BirthdayEvent:
 
     @property
     def _signature(self):
-        return self.date, self.title, self.has_year
+        return self.date, self.display_title, self.has_year
 
     @property
     def _google_event_signature(self):
@@ -183,13 +184,6 @@ class BirthdayEvent:
         date = datetime.strptime(date_str, "%Y-%m-%d")
 
         title = google_event["summary"]
-        # remove zodiac signs and names from title
-        for sign in cls._ZODIAC_SIGNS:
-            name, symbol = sign[0]
-            title = title.replace(symbol, "")
-            title = title.replace(f"({name})", "")
-        title = title.strip()
-
         description = google_event.get("description", "")
 
         lines = description.split("\n")

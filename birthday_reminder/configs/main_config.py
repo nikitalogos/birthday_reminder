@@ -16,6 +16,8 @@ class MainConfig(BaseConfig):
             # "date_format_no_year": {"type": "string", "required": True, "regex": r"\S+"},
             "use_zodiac_signs": {"type": "boolean", "required": True},
             "use_zodiac_names": {"type": "boolean", "required": True},
+            "title_prefix": {"type": "string", "required": True},
+            "title_postfix": {"type": "string", "required": True},
             "calendar_name": {"type": "string", "required": True},
             "google_oauth_port": {"type": "integer", "required": True, "min": 1025, "max": 65535},
             "use_time": {"type": "boolean", "required": True},
@@ -49,6 +51,9 @@ class MainConfig(BaseConfig):
         # self.date_format_no_year = "%m-%d"
         self.use_zodiac_signs = False
         self.use_zodiac_names = False
+        self.title_prefix = "🎁 "
+        self.title_postfix = ""
+
         self.calendar_name = "Birthday Reminder"
 
         self.google_oauth_port = 58585

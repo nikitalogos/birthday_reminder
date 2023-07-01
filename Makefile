@@ -14,7 +14,7 @@ install_python:
 .PHONY: install
 install:
 	make install_python
-	mkdir .auth
+	mkdir -p .auth
 	chmod 700 .auth
 	cp -n birthday_reminder/configs/default_config.yaml main_config.yaml
 	echo "#!/bin/sh\n$(realpath .)/venv/bin/python -m birthday_reminder \"\$$@\"" | sudo tee ${EXE}

@@ -1,5 +1,7 @@
 use_zodiac_signs: false  # will add zodiac signs to the calendar: "Alexander" -> "Alexander ♈"
 use_zodiac_names: false  # will add zodiac names to the calendar: "Alexander" -> "Alexander (Aries)"
+title_prefix: "🎁 "  # will add prefix to the calendar title: "Alexander" -> "🎁 Alexander" or "Birthday of Alexander"
+title_postfix: ""  # will add postfix to the calendar title: "Alexander ♈ (Aries)" -> "Alexander 🎁 ♈ (Aries)" or "Alexander celebrates birthday ♈ (Aries)"
 # if use_zodiac_signs and use_zodiac_names are both True, the calendar will look like this: "Alexander" -> "Alexander ♈ (Aries)"
 
 calendar_name: Birthday Reminder  # display name in google calendar
