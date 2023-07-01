@@ -20,8 +20,11 @@ class TestFileReader:
     YEAR_MINUS_100 = datetime.now().year - 100
     YEAR_MINUS_1000 = datetime.now().year - 1000
 
-    VERBOSE_CONFIG = MainConfig()
-    VERBOSE_CONFIG.verbose = 1000
+    @staticmethod
+    def _get_verbose_config():
+        config = MainConfig()
+        config.verbose = 1000
+        return config
 
     @pytest.mark.parametrize(
         "line",
@@ -104,7 +107,11 @@ class TestFileReader:
 
         filepath = tmpdir.join("good_file.txt")
         filepath.write(string)
-        reader = FileReader(config=self.VERBOSE_CONFIG, file_path=filepath)
+
+        config = self._get_verbose_config()
+        config.input_file = filepath
+        reader = FileReader(config=config)
+
         assert len(reader.events) == 1
         print(f"Parsed:\n{reader.events[0]}")
         print(f"Reference:\n{reference_event}")
@@ -135,12 +142,19 @@ class TestFileReader:
         with pytest.raises(ValueError):
             filepath = tmpdir.join("bad_file.txt")
             filepath.write(line)
-            reader = FileReader(config=self.VERBOSE_CONFIG, file_path=filepath)
+
+            config = self._get_verbose_config()
+            config.input_file = filepath
+            reader = FileReader(config=config)
             print(reader.events[0])
 
     def test_read_good_file(self, utils):
-        FileReader(config=self.VERBOSE_CONFIG, file_path=utils.test_resource("birthdays_no_errors.txt"))
+        config = self._get_verbose_config()
+        config.input_file = utils.test_resource("birthdays_no_errors.txt")
+        FileReader(config=config)
 
     def test_read_bad_file(self, utils):
         with pytest.raises(ValueError):
-            FileReader(config=self.VERBOSE_CONFIG, file_path=utils.test_resource("birthdays_errors.txt"))
+            config = self._get_verbose_config()
+            config.input_file = utils.test_resource("birthdays_errors.txt")
+            FileReader(config=config)

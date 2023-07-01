@@ -77,7 +77,7 @@ if __name__ == "__main__":
         subparser.add_argument("sort_type", choices=[t for t in BirthdayEvent.SortTypes])
 
     for subparser in [validate_parser, show_parser, diff_parser, upload_parser]:
-        subparser.add_argument("file_path", type=str, help="Path to the file with birthdays")
+        subparser.add_argument("-i", "--input-file", type=str, help="Path to the file with birthdays")
 
     upload_parser.add_argument(
         "-f", "--force", action="store_true", help="Force upload even if there are no differences"
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     for subparser in [validate_parser, show_parser, gshow_parser, diff_parser, upload_parser]:
         subparser.add_argument("-v", "--verbose", action="count", default=0, help="Display more information")
         subparser.add_argument("-c", "--config-file", type=str, help="Path to the config file")
-        add_arguments_to_parser(subparser, config)
+        add_arguments_to_parser(subparser, config, exclude_params=["verbose", "input_file"])
 
     args = parser.parse_args()
     args_dict = vars(args)
@@ -98,7 +98,7 @@ if __name__ == "__main__":
             print(config)
 
         args_dict_for_config = copy.deepcopy(args_dict)
-        for key in ["config_file", "command", "sort_type", "file_path", "force", "yes"]:
+        for key in ["config_file", "command", "sort_type", "force", "yes"]:
             args_dict_for_config.pop(key, None)
         args_dict_no_nones = {k: v for k, v in args_dict_for_config.items() if v is not None}
         try:
@@ -131,9 +131,9 @@ if __name__ == "__main__":
 
     update_config()
 
-    if "file_path" in args_dict:
+    if args.command in ["validate", "show", "diff", "upload"]:
         try:
-            reader = FileReader(config, args.file_path)
+            reader = FileReader(config)
             file_events = reader.events
         except Exception as e:
             print_error_and_exit(args, e, 2)
@@ -147,7 +147,7 @@ if __name__ == "__main__":
 
     match args.command:
         case "validate":
-            print(Colorize.success(f"File {args.file_path} is valid!"))
+            print(Colorize.success(f"File {config.input_file} is valid!"))
             exit(0)
         case "show":
             show(file_events, BirthdayEvent.SortTypes(args.sort_type))

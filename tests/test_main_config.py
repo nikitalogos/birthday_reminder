@@ -19,9 +19,12 @@ class TestMainConfig:
             file_config = yaml.safe_load(f)
 
         config = MainConfig()
-        assert file_config == config.get_public_vars()
+        code_config = config.get_public_vars()
+        del code_config["input_file"]  # it's not in the file because we can't set absolute path dynamically in yaml
+        assert file_config == code_config
 
     CONFIG_YAML_STR = """
+        input_file: "Birthdays.txt"
         use_zodiac_signs: true
         use_zodiac_names: true
         title_prefix: "Birthday of "

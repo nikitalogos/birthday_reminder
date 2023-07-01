@@ -3,6 +3,8 @@ import os
 
 import yaml
 
+from typing import Iterable
+
 
 class SafeDumperNoAliases(yaml.SafeDumper):
     """
@@ -75,9 +77,9 @@ class BaseConfig:
             yaml.dump(public_vars, outf, Dumper=SafeDumperNoAliases)
 
 
-def add_arguments_to_parser(parser: argparse.ArgumentParser, config: BaseConfig):
+def add_arguments_to_parser(parser: argparse.ArgumentParser, config: BaseConfig, exclude_params: Iterable = ()):
     for key, value in config.get_public_vars().items():
-        if key != "verbose":
+        if key not in exclude_params:
             if type(value) in [int, str, float]:
                 parser.add_argument(
                     f"--{key.replace('_', '-')}",

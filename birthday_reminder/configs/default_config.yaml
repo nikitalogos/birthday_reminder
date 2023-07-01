@@ -1,3 +1,7 @@
+# path to the file with birthdays. By default it's Birthdays.txt file in the root folder of the project
+# uncomment the line below and set the path to your file if you want to use another file
+# input_file: "/path/to/your/Birthdays.txt"
+
 use_zodiac_signs: false  # will add zodiac signs to the calendar: "Alexander" -> "Alexander ♈"
 use_zodiac_names: false  # will add zodiac names to the calendar: "Alexander" -> "Alexander (Aries)"
 # if use_zodiac_signs and use_zodiac_names are both True, the calendar will look like this: "Alexander" -> "Alexander ♈ (Aries)"

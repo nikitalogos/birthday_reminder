@@ -5,14 +5,16 @@ from cerberus import Validator
 
 from .base_config import BaseConfig
 
-DEFAULT_CONFIG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "default_config.yaml")
-MAIN_CONFIG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../main_config.yaml")
+_THIS_FILE_DIR = os.path.dirname(os.path.realpath(__file__))
+DEFAULT_CONFIG_FILE = os.path.join(_THIS_FILE_DIR, "default_config.yaml")
+MAIN_CONFIG_FILE = os.path.join(_THIS_FILE_DIR, "../../main_config.yaml")
 
 
 class MainConfig(BaseConfig):
     @staticmethod
     def _validate(data: dict):
         request_schema = {
+            "input_file": {"type": "string", "required": True},
             # "date_format_year": {"type": "string", "required": True, "regex": r"\S+"},
             # "date_format_no_year": {"type": "string", "required": True, "regex": r"\S+"},
             "use_zodiac_signs": {"type": "boolean", "required": True},
@@ -48,6 +50,8 @@ class MainConfig(BaseConfig):
 
     def __init__(self):
         super().__init__()
+
+        self.input_file = os.path.join(_THIS_FILE_DIR, "../../Birthdays.txt")
 
         # self.date_format_year = "%Y-%m-%d"  # won't support fancy formats for now. Maybe later.
         # self.date_format_no_year = "%m-%d"

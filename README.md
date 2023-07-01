@@ -52,10 +52,6 @@ make install
 2. you can also pass these params as command line arguments. CLI arguments have higher priority than config file. 
    1. If you want, you can specify a custom config file location with CLI argument `--config-file`
 3. However, I don't recommend to use CLI arguments, because they are not as intuitive as YAML syntax.
-4. Path to file with birthdays can't be specified in config file. It is always taken from positional argument.
-   1. You can create an alias in your shell config file: `alias brem="birthday-reminder upload /path/to/your/file"`
-   2. or a function: `brem() { if [[ $1 != "gshow" ]]; then birthday-reminder "$@" /path/to/your/file; else birthday-reminder "$@"; fi; }`
-
 
 #### Uninstall
 

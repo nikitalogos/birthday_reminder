@@ -106,8 +106,8 @@ class FileReader:
                 print(text_line)
             print("---")
 
-    def __init__(self, config, file_path):
-        with open(file_path) as f:
+    def __init__(self, config):
+        with open(config.input_file) as f:
             lines = f.readlines()
         dates, errors, text_lines = self._parse_lines(config, lines)
 
