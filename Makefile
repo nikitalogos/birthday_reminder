@@ -17,7 +17,7 @@ install:
 	mkdir -p .auth
 	chmod 700 .auth
 	cp -n birthday_reminder/configs/default_config.yaml main_config.yaml
-	cp -n examples/example_birthdays.txt Birthdays.txt
+	cp -n birthday_reminder/assets/example_birthdays.txt Birthdays.txt
 	echo "#!/bin/sh\n$(realpath .)/venv/bin/python -m birthday_reminder \"\$$@\"" | sudo tee ${EXE}
 	sudo chmod a+x ${EXE}
 
