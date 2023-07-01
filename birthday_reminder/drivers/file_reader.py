@@ -71,10 +71,12 @@ class FileReader:
                     date = datetime.strptime(date_str_year, "%Y-%m-%d")
                     has_year = False
                 except ValueError as e2:
-                    add_error(f'Wrong date format: "{date_str}".\n'
-                              f'It does not match neither "YYYY-MM-DD" nor "MM-DD":\n'
-                              f'- "YYYY-MM-DD" -> Error: {e}\n'
-                              f'- "MM-DD" -> Error: {e2}')
+                    add_error(
+                        f'Wrong date format: "{date_str}".\n'
+                        f'It does not match neither "YYYY-MM-DD" nor "MM-DD":\n'
+                        f'- "YYYY-MM-DD" -> Error: {e}\n'
+                        f'- "MM-DD" -> Error: {e2}'
+                    )
                     continue
 
             be = BirthdayEvent(date, title, has_year=has_year, config=config)
