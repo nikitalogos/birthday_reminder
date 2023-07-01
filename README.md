@@ -1,8 +1,15 @@
 # Birthday Reminder
 
+Convert your text-file birthdays into a Google Calendar, complete with annual events, notifications, handling of February 29th, zodiac signs, and more!
+
 ## About
 
-...
+Google Calendar is a powerful app, but it can be difficult to get through it's complex and bulky interface. 
+Also creating individual events can be a tedious and frustrating task. 
+
+This simple tool is created to simplify the management of birthday events in Google Calendar. 
+You just create a plain-text file with birthdays like that: `1990-01-01 Brave Kitty`, and `birthday-reminder` creates a new calendar based on this file. 
+If you edit the file in the future, just run `birthday-reminder` again to update the calendar and that's it!
 
 ## File format
 
@@ -22,6 +29,21 @@ Example:
 2000-01-03 # error, title is missing
 Alex # error, date is missing
 ```
+
+## Features
+
+Birtday reminder has pretty good default params, so you can just use it without configuration at all, but you may want to customize it. 
+Here I will tell you about the features and how you can configure them. 
+For more information, please see [default_config.yaml](./birthday_reminder/configs/default_config.yaml) (or `main_config.yaml`, which will be created on installation)
+
+
+ 1. `title_prefix` and `title postfix` - adds constant text before person's name, like "Birthday of ....", "....'s birthday", etc.
+ 2. `use_zodiac_signs`, `use_zodiac_names` - enable adding zodiac info to the event title like that: "Birthday of John Doe ♑ (Capricorn)"
+ 3. `use_time` - choice between two options: full-day events (that last 00:00-23:59) and timed events - where you can choose `event_time` and `event_duration`.
+     1. Note that time and duration are common for all events within the calendar. Individual time setting is not implemented for the sake of simplicity.
+ 4. `remind_29_feb_on_1_mar` - when somebody has a birthday on February 29th, there is a question - in what day to celebrate a birthday in non-leap year. In `birthday-reminder` there are two options - to set event either on February 28th or on March 1st. If `remind_29_feb_on_1_mar` is set to `false`, the first option is applied. If set to `true` - the second one.
+ 5. `popup_reminders_minutes`, `email_reminders_minutes` - google can either notify you about event via popup on your phone or via email. You can set up to 5 reminder per event. Here reminder times are specified in minutes before the start of the event (negative values don't work). 
+     1. You may need to use your calculator to compute the amount of minutes in day or in a week, so here are the shortcuts: `1 day = 1440 min`, `1 week = 10080 min`
 
 
 ## Install CLI
@@ -88,5 +110,17 @@ make install
 > 1. `birthday-reminder` will create a new calendar in your Google Calendar called `Birthday Reminder` (you can change this name in `main_config.yaml`).
 > 2. It will not modify any events from other calendars. 
 > 3. Calendar created by `birthday-reminder` is not intended to be edited manually from Google Calendar web interface. 
-> 4. The only thing you can do in web interface is change the color of the calendar (unfortunately, it's not possible to change the color via API).
+> 4. The only things you can do in web interface are
+>    1. change the color of the calendar (unfortunately, it's not possible to change the color via API).
+>    2. set the default calendar time zone. (also does't work through API). It is useful if you choose full-day events option (`use_time: false`), because full-day events follow the calendar time zone. Timed events, however, follow the time zone of the event itself, which is effectively set by the `birthday-reminder` program.
 > 5. If you want to edit events, you should edit `Birthdays.txt` file and run `birthday-reminder upload` again.
+
+## Advanced usage
+
+1. If you want, you can create several birthday calendars with different preferences. For example, one for friends and one for colleagues.
+2. To do this, you need to create two separate config files, then configure each calendar accordingly. 
+3. `birthday-reminder` distinguishes calendars by their names, so just set different values in `calendar_name` field.
+   1. Be careful and do not set the same name as your existing calendar, otherwise `birthday-reminder` can potentially delete all events from it! 
+   2. However, it will ask for confirmation before doing this (if `--force` parameter is not specified).
+4. also set fields `input_file` in both config to point to corresponding text files with your birthdays data
+5. After that, you can run `birthday-reminder <command>` with `--config-file` (or simply `-c`) parameter to specify which config file to use.
