@@ -19,7 +19,7 @@ class BaseConfig:
         self._file_path = None
 
     def __repr__(self):
-        return f"{self.__class__.__name__}: {self.get_public_vars()}"
+        return f"{self.__class__.__name__}:\n---\n{yaml.dump(self.get_public_vars())}---\n"
 
     def get_file_path(self):
         return self._file_path

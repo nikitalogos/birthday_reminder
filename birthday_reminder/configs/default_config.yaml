@@ -1,0 +1,24 @@
+use_zodiac_signs: false  # will add zodiac signs to the calendar: "Alexander" -> "Alexander ♈"
+use_zodiac_names: false  # will add zodiac names to the calendar: "Alexander" -> "Alexander (Aries)"
+# if use_zodiac_signs and use_zodiac_names are both True, the calendar will look like this: "Alexander" -> "Alexander ♈ (Aries)"
+
+calendar_name: Birthday Reminder  # display name in google calendar
+
+google_oauth_port: 58585  # port for Google authentication to access Google Calendar API. Must be in range 1024-65535. Usually default is fine.
+
+
+use_time: false  # if true, the event will be created at the specified time, otherwise it will be created as a full day event (00:00-23:59)
+# If use_time is false, the event is full-day, and it uses time_zone from the calendar settings. Please set them manually because API doesn't allow to set them automatically.
+time_zone: UTC # time zone for the event. If use_time is False, this setting is ignored. See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of time zones
+event_time: "12:00"  # time of the event. If use_time is False, this setting is ignored. Format: HH:MM. Applied to all events. Individual settings are not supported.
+event_duration: "01:00"  # duration of the event. If use_time is False, this setting is ignored. Format: HH:MM. Applied to all events. Individual settings are not supported.
+
+# popup reminders for the event. Time in minutes is counted from the event start.
+# One problem with that is that if you set a reminder only before event start.
+# So, if the event is full-day, you can get reminder in the day of the birthday at 00:00, but not later.
+# Usually it's not a very big problem - you just get a reminder at 00:00 and if you sleep - the popup (and email) notification waits for you in the morning.
+# If you want to get a reminder at the day of the birthday, say at 10:00, you need enable use_time and set event_time to 10:00
+popup_reminders_minutes: [10, 10080]
+email_reminders_minutes: [10, 1440, 10080]
+
+verbose: 0  # verbosity of output. Used for debug. For users, 0 is fine

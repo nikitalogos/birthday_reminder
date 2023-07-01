@@ -1,12 +1,11 @@
-import os
+import os.path
 
 import yaml
 from cerberus import Validator
 
 from .base_config import BaseConfig
 
-THIS_FILE_DIR = os.path.dirname(os.path.realpath(__file__))
-RS_CONFIGS_DIR = f"{THIS_FILE_DIR}/rs_configs"
+DEFAULT_CONFIG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../main_config.yaml")
 
 
 class MainConfig(BaseConfig):
@@ -60,7 +59,7 @@ class MainConfig(BaseConfig):
         self.event_duration = "01:00"
 
         self.popup_reminders_minutes = [10, 60 * 24 * 7]
-        self.email_reminders_minutes = [10, 60 * 23, 60 * 24 * 7]
+        self.email_reminders_minutes = [10, 60 * 24, 60 * 24 * 7]
         self.verbose = 0
 
         self._validate(self.get_public_vars())

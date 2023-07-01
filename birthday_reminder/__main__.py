@@ -2,10 +2,8 @@ import argparse
 import copy
 import traceback
 
-import yaml
-
 from .birthday_event import BirthdayEvent, ComparisonResult, compare_events_file_and_google
-from .configs.main_config import MainConfig
+from .configs.main_config import DEFAULT_CONFIG_FILE, MainConfig
 from .drivers.file_reader import FileReader
 from .drivers.google_calendar_api import GoogleCalendarApi
 from .utils.colorize import Colorize
@@ -68,6 +66,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="birthday-reminder", description="Birthday Reminder")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    parser.add_argument("-v", "--verbose", action="count", default=0, help="Display more information")
+
+    parser.add_argument("-c", "--config-file", type=str, help="Path to the config file")
+    for key, value in config.get_public_vars().items():
+        if key != "verbose":
+            parser.add_argument(
+                f"--{key.replace('_', '-')}",
+                type=type(value),
+            )
+
     validate_parser = subparsers.add_parser("validate", description="Just read file and check for errors")
     show_parser = subparsers.add_parser("show", description="Show birthdays from file")
     gshow_parser = subparsers.add_parser("gshow", description="Show birthdays from Google Calendar")
@@ -75,7 +83,7 @@ if __name__ == "__main__":
     upload_parser = subparsers.add_parser("upload", description="Upload birthdays from file to Google Calendar")
 
     for subparser in [show_parser, gshow_parser]:
-        subparser.add_argument("sort_type", choices=[t.value for t in list(BirthdayEvent.SortTypes)])
+        subparser.add_argument("sort_type", choices=[t for t in BirthdayEvent.SortTypes])
 
     for subparser in [validate_parser, show_parser, diff_parser, upload_parser]:
         subparser.add_argument("file_path", type=str, help="Path to the file with birthdays")
@@ -85,27 +93,47 @@ if __name__ == "__main__":
     )
     upload_parser.add_argument("-y", "--yes", action="store_true", help="Do not ask for confirmation")
 
-    for subparser in [validate_parser, show_parser, gshow_parser, diff_parser, upload_parser]:
-        subparser.add_argument("-v", "--verbose", action="count", default=0, help="Display more information")
-        for key, value in config.get_public_vars().items():
-            if key != "verbose":
-                subparser.add_argument(
-                    f"--{key.replace('_', '-')}",
-                    type=type(value),
-                )
     args = parser.parse_args()
     args_dict = vars(args)
 
-    args_dict_for_config = copy.deepcopy(args_dict)
-    for key in ["command", "sort_type", "file_path", "force", "yes"]:
-        args_dict_for_config.pop(key, None)
-    args_dict_no_nones = {k: v for k, v in args_dict_for_config.items() if v is not None}
-    try:
-        config.set_public_vars(args_dict_no_nones)
-    except Exception as e:
-        print_error_and_exit(args, e, 1)
-    if config.verbose:
-        print(f"Configuration:\n---\n{yaml.dump(config.get_public_vars())}---")
+    def update_config():
+        if args.verbose >= 2:
+            print(Colorize.info("Initial config:"))
+            print(config)
+
+        args_dict_for_config = copy.deepcopy(args_dict)
+        for key in ["config_file", "command", "sort_type", "file_path", "force", "yes"]:
+            args_dict_for_config.pop(key, None)
+        args_dict_no_nones = {k: v for k, v in args_dict_for_config.items() if v is not None}
+        try:
+            if args.config_file is not None:
+                if args.verbose >= 2:
+                    print(Colorize.info(f"config_file_path provided. Loading config from file: {args.config_file}"))
+                config.set_file_path(args.config_file)
+                config.load_from_file()
+                if args.verbose >= 2:
+                    print(config)
+            else:
+                if args.verbose >= 2:
+                    print(Colorize.info("config_file_path not provided. Using default config."))
+                config.set_file_path(DEFAULT_CONFIG_FILE)
+                config.load_from_file()
+                if args.verbose >= 2:
+                    print(config)
+
+            if len(args_dict_no_nones) > 0:
+                if args.verbose >= 2:
+                    print(Colorize.info(f"Updating config with provided command line arguments:\n{args_dict_no_nones}"))
+                config.set_public_vars(args_dict_no_nones)
+                if args.verbose >= 2:
+                    print(config)
+        except Exception as e:
+            print_error_and_exit(args, e, 1)
+        if config.verbose:
+            print(Colorize.info("Final configuration:"))
+            print(config)
+
+    update_config()
 
     if "file_path" in args_dict:
         try:
@@ -180,9 +208,7 @@ if __name__ == "__main__":
                     f"{len(cmp_result.file_only_events)} events will be created."
                 )
 
-                ask_user_proceed_or_exit(
-                    "Do you want to upload events from file to Google Calendar?\n" + changes_str
-                )
+                ask_user_proceed_or_exit("Do you want to upload events from file to Google Calendar?\n" + changes_str)
                 try:
                     google_events_aligned = []
                     file_events_aligned = []

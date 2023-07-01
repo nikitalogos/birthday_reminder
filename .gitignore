@@ -7,3 +7,4 @@
 venv
 .ipynb_checkpoints
 .auth
+main_config.yaml
