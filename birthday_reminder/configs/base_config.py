@@ -89,7 +89,7 @@ def add_arguments_to_parser(parser: argparse.ArgumentParser, config: BaseConfig)
                 assert value is False, f"Default value for {key} is True. This is not supported"
                 parser.add_argument(
                     f"--{key.replace('_', '-')}",
-                    type=str,
+                    type=bool,
                 )
             elif type(value) == list:
                 parser.add_argument(

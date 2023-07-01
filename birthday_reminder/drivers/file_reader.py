@@ -68,7 +68,6 @@ class FileReader:
             except ValueError:
                 try:
                     date = datetime.strptime(date_str, "%m-%d")
-                    date = date.replace(year=1900)  # it's already 1900 by default, but just to be explicit
                     has_year = False
                 except ValueError:
                     add_error(f'Wrong date format: "{date_str}". Expected one of: YYYY-MM-DD, MM-DD')

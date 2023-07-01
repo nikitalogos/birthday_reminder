@@ -16,6 +16,9 @@ time_zone: UTC # time zone for the event. If use_time is False, this setting is 
 event_time: "12:00"  # time of the event. If use_time is False, this setting is ignored. Format: HH:MM. Applied to all events. Individual settings are not supported.
 event_duration: "01:00"  # duration of the event. If use_time is False, this setting is ignored. Format: HH:MM. Applied to all events. Individual settings are not supported.
 
+remind_29_feb_on_1_mar: false # this is a workaround for Google Calendar to display reminders for birthdays in non-leap years.
+# If false, the reminder will be set on 28 Feb. If true, the reminder will be set on 1 Mar.
+
 # popup reminders for the event. Time in minutes is counted from the event start.
 # One problem with that is that if you set a reminder only before event start.
 # So, if the event is full-day, you can get reminder in the day of the birthday at 00:00, but not later.

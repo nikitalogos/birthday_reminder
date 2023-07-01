@@ -30,6 +30,9 @@ class BirthdayEvent:
             "If event created from file, config is required."
         )
 
+        if not self.has_year:
+            self.date = self.date.replace(year=1900)  # it's already 1900 by default, but just to be explicit
+
     @property
     def date_no_year(self):
         return self.date.replace(year=2020)  # put leap year to avoid issues with Feb 29
@@ -201,10 +204,17 @@ class BirthdayEvent:
     def to_google_event(self) -> dict:
         assert self.config, "Config is not set"
 
+        rrule = "RRULE:FREQ=YEARLY"
+        if self.date.month == 2 and self.date.day == 29:
+            if self.config.remind_29_feb_on_1_mar:
+                rrule += ";BYYEARDAY=60"  # remind on 1st of March in non-leap years
+            else:
+                rrule += ";BYMONTH=2;BYMONTHDAY=-1"  # remind on 28th of February in non-leap years
+
         google_event = {
             "summary": self.display_title,
             "description": self.description_for_google_calendar,
-            "recurrence": ["RRULE:FREQ=YEARLY"],
+            "recurrence": [rrule],
             "reminders": {
                 "useDefault": False,
                 "overrides": [

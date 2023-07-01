@@ -24,6 +24,7 @@ class MainConfig(BaseConfig):
             "time_zone": {"type": "string", "required": True},
             "event_time": {"type": "string", "required": True, "regex": r"\d\d:\d\d"},
             "event_duration": {"type": "string", "required": True, "regex": r"\d\d:\d\d"},
+            "remind_29_feb_on_1_mar": {"type": "boolean", "required": True},
             "popup_reminders_minutes": {"type": "list", "required": True, "schema": {"type": "integer"}},
             "email_reminders_minutes": {"type": "list", "required": True, "schema": {"type": "integer"}},
             "verbose": {"type": "integer", "required": True, "min": 0},
@@ -62,6 +63,8 @@ class MainConfig(BaseConfig):
         self.time_zone = "UTC"
         self.event_time = "12:00"
         self.event_duration = "01:00"
+
+        self.remind_29_feb_on_1_mar = False
 
         self.popup_reminders_minutes = [10, 60 * 24 * 7]
         self.email_reminders_minutes = [10, 60 * 24, 60 * 24 * 7]

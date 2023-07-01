@@ -48,6 +48,7 @@ make install
 #### Configure
 
 1. you can modify all params in file `main_config.yaml`
+   1. File `main_config.yaml` is created during installation. It has detailed description of all params.
 2. you can also pass these params as command line arguments. CLI arguments have higher priority than config file. 
    1. If you want, you can specify a custom config file location with CLI argument `--config-file`
 3. However, I don't recommend to use CLI arguments, because they are not as intuitive as YAML syntax.
