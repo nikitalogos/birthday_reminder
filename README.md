@@ -13,6 +13,7 @@ Example:
 # this is a comment
 2000-01-01 John Doe # this is also a comment
   2000-01-02 Jane      # leading/trailing tabs/spaces are ignored
+02-03 Alex # date can be specified without year
   
 2000-01-03 # error, title is missing
 Alex # error, date is missing
@@ -43,6 +44,17 @@ make install
 ```
 
 > Developer note: `make install` installs package in editable mode, so you can edit code and `birthday-reminder` will use the updated version
+
+#### Configure
+
+1. you can modify all params in file `main_config.yaml`
+2. you can also pass these params as command line arguments. CLI arguments have higher priority than config file. 
+   1. If you want, you can specify a custom config file location with CLI argument `--config-file`
+3. However, I don't recommend to use CLI arguments, because they are not as intuitive as YAML syntax.
+4. Path to file with birthdays can't be specified in config file. It is always taken from positional argument.
+   1. You can create an alias in your shell config file: `alias brem="birthday-reminder upload /path/to/your/file"`
+   2. or a function: `brem() { if [[ $1 != "gshow" ]]; then birthday-reminder "$@" /path/to/your/file; else birthday-reminder "$@"; fi; }`
+
 
 #### Uninstall
 

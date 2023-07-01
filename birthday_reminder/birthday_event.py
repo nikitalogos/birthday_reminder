@@ -32,7 +32,7 @@ class BirthdayEvent:
 
     @property
     def date_no_year(self):
-        return self.date.replace(year=datetime.now().year)
+        return self.date.replace(year=2020)  # put leap year to avoid issues with Feb 29
 
     @property
     def age(self):
