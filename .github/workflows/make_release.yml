@@ -119,6 +119,8 @@ jobs:
           name: macos.tar.gz
           path: artifacts/
 
+      - run: ls -la .
+      - run: ls -la artifacts/
       - run: |
           mv artifacts/windows.zip "artifacts/birthday-reminder-windows-v$(cat VERSION).zip"
           mv artifacts/linux.tar.gz "artifacts/birthday-reminder-linux-v$(cat VERSION).tar.gz"
