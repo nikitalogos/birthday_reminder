@@ -9,3 +9,8 @@ venv
 auth
 main_config.yaml
 Birthdays.txt
+
+# pyinstaller dirs
+build
+dist
+birthday-reminder.spec

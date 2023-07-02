@@ -31,9 +31,11 @@ uninstall:
 .PHONY: build_pyinstaller
 build_pyinstaller:
 	sudo apt-get install python3.11-dev
-	venv/bin/pyinstaller birthday_reminder/__main__.py -n brem -y \
-		--add-data "birthday_reminder/configs/default_config.yaml:main_config.yaml" \
-		--add-data "birthday_reminder/assets/example_birthdays.txt:Birthdays.txt"
+	venv/bin/pyinstaller birthday_reminder/__main__.py -n birthday-reminder -y
+	mkdir -p dist/birthday-reminder/auth
+	chmod 700 dist/birthday-reminder/auth
+	cp -n birthday_reminder/configs/default_config.yaml dist/birthday-reminder/main_config.yaml
+	cp -n birthday_reminder/assets/example_birthdays.txt dist/birthday-reminder/Birthdays.txt
 
 
 .PHONY: tests
