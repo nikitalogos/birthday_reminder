@@ -15,7 +15,7 @@ class TestMainConfig:
         config._validate(config.get_public_vars())
 
     def test_default_config_file_has_same_params(self):
-        with open(DEFAULT_CONFIG_FILE) as f:
+        with open(DEFAULT_CONFIG_FILE, encoding="utf-8") as f:
             file_config = yaml.safe_load(f)
 
         config = MainConfig()

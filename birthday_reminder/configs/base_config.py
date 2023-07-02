@@ -51,7 +51,7 @@ class BaseConfig:
         _, ext = os.path.splitext(file_path)
         assert ext == ".yaml"
 
-        with open(file_path, "r") as inf:
+        with open(file_path, "r", encoding="utf-8") as inf:
             data_dict = yaml.safe_load(inf)
         return data_dict
 
@@ -72,7 +72,7 @@ class BaseConfig:
             os.makedirs(dirname)
 
         public_vars = self.get_public_vars()
-        with open(file_path, "w") as outf:
+        with open(file_path, "w", encoding="utf-8") as outf:
             yaml.dump(public_vars, outf, Dumper=SafeDumperNoAliases)
 
 
