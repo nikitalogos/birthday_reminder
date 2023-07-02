@@ -30,15 +30,16 @@ uninstall:
 
 .PHONY: build_windows
 build_windows:
+	rm -r dist || true
 	${PYINSTALLER} birthday_reminder/__main__.py -n birthday-reminder -y --clean --onefile --distpath dist/birthday-reminder
-	New-Item -ItemType Directory -Force -Path dist/birthday-reminder/auth
-	Copy-Item birthday_reminder/configs/default_config.yaml dist/birthday-reminder/main_config.yaml
-	Copy-Item birthday_reminder/assets/example_birthdays.txt dist/birthday-reminder/Birthdays.txt
+	mkdir -p dist/birthday-reminder/auth
+	cp birthday_reminder/configs/default_config.yaml dist/birthday-reminder/main_config.yaml
+	cp birthday_reminder/assets/example_birthdays.txt dist/birthday-reminder/Birthdays.txt
 
-	New-Item -ItemType Directory -Force -Path dist/birthday-reminder/release_info
-	Copy-Item LICENCE dist/birthday-reminder/release_info/LICENCE
-	Copy-Item VERSION dist/birthday-reminder/release_info/VERSION
-	Copy-Item README.md dist/birthday-reminder/release_info/README.md
+	mkdir -p dist/birthday-reminder/release_info
+	cp LICENCE dist/birthday-reminder/release_info/LICENCE
+	cp VERSION dist/birthday-reminder/release_info/VERSION
+	cp README.md dist/birthday-reminder/release_info/README.md
 
 	Compress-Archive -Path dist/birthday-reminder -DestinationPath dist/windows.zip
 
