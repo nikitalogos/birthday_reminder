@@ -11,9 +11,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from ..birthday_event import BirthdayEvent, BirthdayEventSignature
-from ..configs.main_config import MainConfig
-from ..utils.colorize import Colorize
+from birthday_reminder.birthday_event import BirthdayEvent, BirthdayEventSignature
+from birthday_reminder.configs.main_config import MainConfig
+from birthday_reminder.utils.colorize import Colorize
 
 
 class GoogleApiAuth:

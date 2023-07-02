@@ -1,13 +1,15 @@
 import os.path
+from os.path import dirname
 
 import yaml
 from cerberus import Validator
 
-from .base_config import BaseConfig
+from birthday_reminder.configs.base_config import BaseConfig
 
-_THIS_FILE_DIR = os.path.dirname(os.path.realpath(__file__))
+_THIS_FILE_DIR = dirname(os.path.realpath(__file__))
+_PROJECT_DIR = dirname(dirname(_THIS_FILE_DIR))
 DEFAULT_CONFIG_FILE = os.path.join(_THIS_FILE_DIR, "default_config.yaml")
-MAIN_CONFIG_FILE = os.path.join(_THIS_FILE_DIR, "../../main_config.yaml")
+MAIN_CONFIG_FILE = os.path.join(_PROJECT_DIR, "main_config.yaml")
 
 
 class MainConfig(BaseConfig):
@@ -51,7 +53,7 @@ class MainConfig(BaseConfig):
     def __init__(self):
         super().__init__()
 
-        self.input_file = os.path.join(_THIS_FILE_DIR, "../../Birthdays.txt")
+        self.input_file = os.path.join(_PROJECT_DIR, "Birthdays.txt")
 
         # self.date_format_year = "%Y-%m-%d"  # won't support fancy formats for now. Maybe later.
         # self.date_format_no_year = "%m-%d"

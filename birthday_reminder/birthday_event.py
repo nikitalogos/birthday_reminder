@@ -9,8 +9,8 @@ from dateutil.parser import parse as dateutil_parse
 from dateutil.relativedelta import relativedelta
 from strenum import StrEnum
 
-from .configs.main_config import MainConfig
-from .utils.colorize import Colorize
+from birthday_reminder.configs.main_config import MainConfig
+from birthday_reminder.utils.colorize import Colorize
 
 
 @dataclass

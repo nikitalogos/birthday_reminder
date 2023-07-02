@@ -2,8 +2,8 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 
-from ..birthday_event import BirthdayEvent
-from ..utils.colorize import Colorize
+from birthday_reminder.birthday_event import BirthdayEvent
+from birthday_reminder.utils.colorize import Colorize
 
 
 @dataclass

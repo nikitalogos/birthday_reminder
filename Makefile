@@ -28,6 +28,14 @@ uninstall:
 	rm -r venv || true
 
 
+.PHONY: build_pyinstaller
+build_pyinstaller:
+	sudo apt-get install python3.11-dev
+	venv/bin/pyinstaller birthday_reminder/__main__.py -n brem -y \
+		--add-data "birthday_reminder/configs/default_config.yaml:main_config.yaml" \
+		--add-data "birthday_reminder/assets/example_birthdays.txt:Birthdays.txt"
+
+
 .PHONY: tests
 tests:
 	${PYTHON} -m pytest tests/

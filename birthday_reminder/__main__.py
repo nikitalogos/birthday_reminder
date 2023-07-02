@@ -1,13 +1,14 @@
 import argparse
 import copy
 import traceback
+from sys import exit
 
-from .birthday_event import BirthdayEvent, ComparisonResult, compare_events_file_and_google
-from .configs.base_config import add_arguments_to_parser
-from .configs.main_config import MAIN_CONFIG_FILE, MainConfig
-from .drivers.file_reader import FileReader
-from .drivers.google_calendar_api import GoogleCalendarApi
-from .utils.colorize import Colorize
+from birthday_reminder.birthday_event import BirthdayEvent, ComparisonResult, compare_events_file_and_google
+from birthday_reminder.configs.base_config import add_arguments_to_parser
+from birthday_reminder.configs.main_config import MAIN_CONFIG_FILE, MainConfig
+from birthday_reminder.drivers.file_reader import FileReader
+from birthday_reminder.drivers.google_calendar_api import GoogleCalendarApi
+from birthday_reminder.utils.colorize import Colorize
 
 
 def print_events(events: list[BirthdayEvent]):
