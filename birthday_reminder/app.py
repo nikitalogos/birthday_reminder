@@ -1,7 +1,7 @@
 import argparse
 import copy
 import traceback
-from sys import exit
+from typing import Optional
 
 from birthday_reminder.birthday_event import BirthdayEvent, ComparisonResult, compare_events_file_and_google
 from birthday_reminder.configs.base_config import add_arguments_to_parser
@@ -31,7 +31,9 @@ def show(events: list[BirthdayEvent], sort_type: BirthdayEvent.SortTypes):
     print_events(events_sorted)
 
 
-def print_diff(r: ComparisonResult, config: MainConfig):
+def print_diff(
+    file_events: list[BirthdayEvent], google_events: list[BirthdayEvent], r: ComparisonResult, config: MainConfig
+):
     print(
         Colorize.info(
             f"File has {len(file_events)} events, Google Calendar has {len(google_events)} events.\n"
@@ -55,14 +57,13 @@ def print_diff(r: ComparisonResult, config: MainConfig):
         print_events(list(r.google_only_events))
 
 
-def print_error_and_exit(args, e: Exception, exit_code: int):
+def print_error(args, e: Exception):
     print(Colorize.fail(e))
     if args.verbose >= 3:
         traceback.print_exc()
-    exit(exit_code)
 
 
-if __name__ == "__main__":
+def main(cmdline_args: Optional[list] = None) -> int:
     config = MainConfig()
 
     parser = argparse.ArgumentParser(prog="birthday-reminder", description="Birthday Reminder")
@@ -90,7 +91,7 @@ if __name__ == "__main__":
         subparser.add_argument("-c", "--config-file", type=str, help="Path to the config file")
         add_arguments_to_parser(subparser, config, exclude_params=["verbose", "input_file"])
 
-    args = parser.parse_args()
+    args = parser.parse_args(args=cmdline_args)
     args_dict = vars(args)
 
     def update_config():
@@ -125,7 +126,8 @@ if __name__ == "__main__":
                 if args.verbose >= 2:
                     print(config)
         except Exception as e:
-            print_error_and_exit(args, e, 1)
+            print_error(args, e)
+            return 1
         if config.verbose:
             print(Colorize.info("Final configuration:"))
             print(config)
@@ -137,30 +139,32 @@ if __name__ == "__main__":
             reader = FileReader(config)
             file_events = reader.events
         except Exception as e:
-            print_error_and_exit(args, e, 2)
+            print_error(args, e)
+            return 2
 
     if args.command in ["gshow", "diff", "upload"]:
         try:
             gc_api = GoogleCalendarApi(config)
             google_events = gc_api.get_events()
         except Exception as e:
-            print_error_and_exit(args, e, 3)
+            print_error(args, e)
+            return 3
 
     match args.command:
         case "validate":
             print(Colorize.success(f"File {config.input_file} is valid!"))
-            exit(0)
+            return 0
         case "show":
             show(file_events, BirthdayEvent.SortTypes(args.sort_type))
         case "gshow":
             show(google_events, BirthdayEvent.SortTypes(args.sort_type))
         case "diff":
             cmp_result = compare_events_file_and_google(file_events=file_events, google_events=google_events)
-            print_diff(cmp_result, config)
+            print_diff(file_events, google_events, cmp_result, config)
         case "upload":
             cmp_result = compare_events_file_and_google(file_events=file_events, google_events=google_events)
             print("---------------------------------")
-            print_diff(cmp_result, config)
+            print_diff(file_events, google_events, cmp_result, config)
             print("---------------------------------")
 
             def ask_user_proceed_or_exit(string: str):
@@ -177,7 +181,7 @@ if __name__ == "__main__":
                     break
                 if user_input == "n":
                     print(Colorize.warning("Upload cancelled."))
-                    exit(0)
+                    return 0
 
             if args.force:
                 print(
@@ -191,13 +195,14 @@ if __name__ == "__main__":
                     gc_api.delete_events(google_events)
                     gc_api.create_events(file_events)
                 except Exception as e:
-                    print_error_and_exit(args, e, 15)
+                    print_error(args, e)
+                    return 11
                 print(Colorize.success("Events uploaded successfully!"))
-                exit(0)
+                return 0
 
             if not cmp_result.has_changes:
                 print(Colorize.success("No differences found. Nothing to upload. Exiting."))
-                exit(0)
+                return 0
             else:
                 changes_str = (
                     f"{len(cmp_result.google_only_events)} events will be deleted,\n"
@@ -231,8 +236,10 @@ if __name__ == "__main__":
                     gc_api.update_events(file_events=file_events_aligned, google_events=google_events_aligned)
                     gc_api.create_events(file_events=[e for e in file_events if e in cmp_result.file_only_events])
                 except Exception as e:
-                    print_error_and_exit(args, e, 15)
+                    print_error(args, e)
+                    return 12
                 print(Colorize.success("Events uploaded successfully!"))
-                exit(0)
+                return 0
 
             assert False, "Unreachable code"
+    return 0
