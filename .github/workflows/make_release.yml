@@ -1,4 +1,4 @@
-name: Make release in "VERSION" file change @ main
+name: Make release on "VERSION" file change @ main
 
 on:
   push:
@@ -28,6 +28,9 @@ jobs:
   build_windows:
     needs: checks_and_tests
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
@@ -73,7 +76,7 @@ jobs:
 
   build_macos:
     needs: checks_and_tests
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
