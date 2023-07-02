@@ -30,7 +30,7 @@ uninstall:
 
 .PHONY: build_windows
 build_windows:
-	Remove-Item dist -Recurse -Force -ErrorAction SilentlyContinue
+	if (Test-Path dist) { Remove-Item -Recurse -Force dist }
 	${PYINSTALLER} birthday_reminder/__main__.py -n birthday-reminder -y --clean --onefile --distpath dist/birthday-reminder
 	md dist/birthday-reminder/auth -Force
 	cp birthday_reminder/configs/default_config.yaml dist/birthday-reminder/main_config.yaml
