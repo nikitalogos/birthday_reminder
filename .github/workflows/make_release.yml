@@ -62,10 +62,10 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .
-      - name: Build Linux Binary
+      - name: Build Linux/MacOS Binary
         run: |
-          make build_linux PYINSTALLER=pyinstaller
-      - name: Upload Linux Binary
+          make build_linux_macos PYINSTALLER=pyinstaller
+      - name: Upload Linux/MacOS Binary
         uses: actions/upload-artifact@v2
         with:
           name: linux_macos.tar.gz
