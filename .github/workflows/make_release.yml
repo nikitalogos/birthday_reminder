@@ -48,7 +48,7 @@ jobs:
       - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
-          name: windows.zip
+          name: windows
           path: dist/windows.zip
 
   build_linux:
@@ -67,11 +67,12 @@ jobs:
       - name: Build Binary
         run: |
           make build_linux_macos PYINSTALLER=pyinstaller
+          mv dist/linux_macos.tar.gz dist/linux.tar.gz
       - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
-          name: linux.tar.gz
-          path: dist/linux_macos.tar.gz
+          name: linux
+          path: dist/linux.tar.gz
 
   build_macos:
     needs: checks_and_tests
@@ -89,11 +90,12 @@ jobs:
       - name: Build Binary
         run: |
           make build_linux_macos PYINSTALLER=pyinstaller
+          mv dist/linux_macos.tar.gz dist/macos.tar.gz
       - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
-          name: macos.tar.gz
-          path: dist/linux_macos.tar.gz
+          name: macos
+          path: dist/macos.tar.gz
 
   release:
     needs:
@@ -108,15 +110,15 @@ jobs:
 
       - uses: actions/download-artifact@v2
         with:
-          name: windows.zip
+          name: windows
           path: artifacts/
       - uses: actions/download-artifact@v2
         with:
-          name: linux.tar.gz
+          name: linux
           path: artifacts/
       - uses: actions/download-artifact@v2
         with:
-          name: macos.tar.gz
+          name: macos
           path: artifacts/
 
       - run: ls -la .
