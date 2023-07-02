@@ -1,3 +1,5 @@
+![Cover](./docs/cover.png)
+
 # Birthday Reminder
 
 Convert your text-file birthdays into a Google Calendar, complete with annual events, notifications, handling of February 29th, zodiac signs, and more!
