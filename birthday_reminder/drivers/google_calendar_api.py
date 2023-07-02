@@ -37,7 +37,8 @@ class GoogleApiAuth:
                 + Colorize.warning(
                     "It seems that you executed command that requires authorization in Google Api.\n"
                     "To learn how to authorize, read the README.md:\n"
-                ) + Colorize.info(
+                )
+                + Colorize.info(
                     "https://github.com/nikitalogos/birthday_reminder/tree/main#authorize-in-google-calendar-api"
                 )
             )
