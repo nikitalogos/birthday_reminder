@@ -30,7 +30,7 @@ uninstall:
 
 .PHONY: build_windows
 build_windows:
-	rm dist -Recurse -Force -ErrorAction SilentlyContinue
+	# rm dist -Recurse -Force -ErrorAction SilentlyContinue # doesn't work in PowerShell :(
 	${PYINSTALLER} birthday_reminder/__main__.py -n birthday-reminder -y --clean --onefile --distpath dist/birthday-reminder
 	md dist/birthday-reminder/auth -Force
 	cp birthday_reminder/configs/default_config.yaml dist/birthday-reminder/main_config.yaml
