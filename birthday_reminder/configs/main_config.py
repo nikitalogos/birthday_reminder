@@ -6,7 +6,7 @@ from cerberus import Validator
 
 from birthday_reminder.configs.base_config import BaseConfig
 
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     # Running as a frozen executable
     _THIS_FILE_DIR = os.path.dirname(sys.executable)
     _PROJECT_DIR = _THIS_FILE_DIR

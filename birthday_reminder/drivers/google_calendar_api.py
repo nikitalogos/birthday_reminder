@@ -1,8 +1,8 @@
 import enum
 import json
 import os.path
-import time
 import sys
+import time
 from typing import Iterable
 
 import tqdm
@@ -20,7 +20,7 @@ from birthday_reminder.utils.colorize import Colorize
 class GoogleApiAuth:
     SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, "frozen", False):
         # Running as a frozen executable
         _PROJECT_DIR = os.path.dirname(sys.executable)
     else:
