@@ -41,7 +41,7 @@ build_windows:
 	cp VERSION dist/birthday-reminder/release_info/VERSION
 	cp README.md dist/birthday-reminder/release_info/README.md
 
-	Compress-Archive -Path dist/birthday-reminder -DestinationPath dist/windows.zip
+	powershell -Command "Compress-Archive -Path dist/birthday-reminder -DestinationPath dist/windows.zip"
 
 
 
