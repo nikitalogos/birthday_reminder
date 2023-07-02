@@ -7,5 +7,7 @@ if __name__ == "__main__":
         args = input("birthday-reminder ")
         try:
             main(args.split())
+        except SystemExit:
+            pass  # argparse exits with 0 on --help
         except Exception:
             traceback.print_exc()

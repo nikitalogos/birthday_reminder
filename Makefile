@@ -31,7 +31,7 @@ uninstall:
 .PHONY: build_windows
 build_windows:
 	rm -r dist || true
-	${PYINSTALLER} birthday_reminder/__main__.py -n birthday-reminder -y --clean --onefile --distpath dist/birthday-reminder
+	${PYINSTALLER} birthday_reminder/interactive_shell.py -n birthday-reminder -y --clean --onefile --distpath dist/birthday-reminder
 	mkdir -p dist/birthday-reminder/auth
 	cp birthday_reminder/configs/default_config.yaml dist/birthday-reminder/main_config.yaml
 	cp birthday_reminder/assets/example_birthdays.txt dist/birthday-reminder/Birthdays.txt

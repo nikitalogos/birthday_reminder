@@ -167,22 +167,6 @@ def main(cmdline_args: Optional[list] = None) -> int:
             print_diff(file_events, google_events, cmp_result, config)
             print("---------------------------------")
 
-            def ask_user_proceed_or_exit(string: str):
-                if args.yes:
-                    return
-                print(Colorize.warning(string))
-                while True:
-                    user_input = input(
-                        Colorize.warning("Press 'y' to continue or 'n' to cancel, then press 'Enter':")
-                    ).lower()
-                    if user_input not in ["y", "n"]:
-                        print(Colorize.fail("Invalid input. Please try again."))
-                        continue
-                    break
-                if user_input == "n":
-                    print(Colorize.warning("Upload cancelled."))
-                    return 0
-
             if args.force:
                 print(
                     Colorize.warning(
@@ -210,7 +194,21 @@ def main(cmdline_args: Optional[list] = None) -> int:
                     f"{len(cmp_result.file_only_events)} events will be created."
                 )
 
-                ask_user_proceed_or_exit("Do you want to upload events from file to Google Calendar?\n" + changes_str)
+                if not args.yes:
+                    print(Colorize.warning(
+                        "Do you want to upload events from file to Google Calendar?\n" + changes_str))
+                    while True:
+                        user_input = input(
+                            Colorize.warning("Press 'y' to continue or 'n' to cancel, then press 'Enter':")
+                        ).lower()
+                        if user_input not in ["y", "n"]:
+                            print(Colorize.fail("Invalid input. Please try again."))
+                            continue
+                        break
+                    if user_input == "n":
+                        print(Colorize.warning("Upload cancelled."))
+                        return 0
+
                 try:
                     google_events_aligned = []
                     file_events_aligned = []
