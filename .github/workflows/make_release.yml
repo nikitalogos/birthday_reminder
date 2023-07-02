@@ -48,9 +48,8 @@ jobs:
       - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
-          name: windows.zip
+          name: birthday-reminder-windows-v${{ steps.get_version.outputs.version }}.zip
           path: dist/windows.zip
-
 
   build_linux:
     needs: checks_and_tests
@@ -71,7 +70,7 @@ jobs:
       - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
-          name: linux.tar.gz
+          name: birthday-reminder-linux-v${{ steps.get_version.outputs.version }}.tar.gz
           path: dist/linux_macos.tar.gz
 
   build_macos:
@@ -93,7 +92,7 @@ jobs:
       - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
-          name: macos.tar.gz
+          name: birthday-reminder-macOS-v${{ steps.get_version.outputs.version }}.tar.gz
           path: dist/linux_macos.tar.gz
 
   release:
@@ -107,56 +106,21 @@ jobs:
       - id: get_version
         run: echo "::set-output name=version::$(cat VERSION)"
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v2
+        with:
+          name: birthday-reminder-windows-v${{ steps.get_version.outputs.version }}.zip
+      - uses: actions/download-artifact@v2
+        with:
+          name: birthday-reminder-linux-v${{ steps.get_version.outputs.version }}.tar.gz
+      - uses: actions/download-artifact@v2
+        with:
+          name: birthday-reminder-macOS-v${{ steps.get_version.outputs.version }}.tar.gz
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.get_version.outputs.version }}
-          release_name: Release ${{ steps.get_version.outputs.version }}
-          draft: false
-          prerelease: false
-
-      - name: Download Windows Binary
-        uses: actions/download-artifact@v2
-        with:
-          name: windows.zip
-      - name: Upload Windows Binary
-        uses: actions/upload-release-asset@v1
+          name: Birthday Reminder ${{ steps.get_version.outputs.version }}
+          files: birthday-reminder-*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: windows.zip
-          asset_name: birthday-reminder-windows-v${{ steps.get_version.outputs.version }}.zip
-          asset_content_type: application/zip
-
-      - name: Download MacOS Binary
-        uses: actions/download-artifact@v2
-        with:
-          name: macos.tar.gz
-      - name: Upload MacOS Binary
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: macos.tar.gz
-          asset_name: birthday-reminder-macOS-v${{ steps.get_version.outputs.version }}.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Download Linux Binary
-        uses: actions/download-artifact@v2
-        with:
-          name: linux.tar.gz
-      - name: Upload Linux Binary
-        id: upload_release_asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: linux.tar.gz
-          asset_name: birthday-reminder-linux-v${{ steps.get_version.outputs.version }}.tar.gz
-          asset_content_type: application/gzip
