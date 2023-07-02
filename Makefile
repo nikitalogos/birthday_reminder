@@ -1,10 +1,11 @@
 PYTHON=venv/bin/python3
+PYINSTALLER=venv/bin/pyinstaller
 EXE=/usr/local/bin/birthday-reminder
 DIRS=birthday_reminder tests
 
 .PHONY: install_python
 install_python:
-	sudo apt-get install python3.11 python3.11-venv
+	sudo apt-get install python3.11 python3.11-venv python3.11-dev
 	rm -r venv || true
 	python3.11 -m venv venv
 	venv/bin/pip install --upgrade pip
@@ -13,7 +14,6 @@ install_python:
 
 .PHONY: install
 install:
-	make install_python
 	mkdir -p auth
 	chmod 700 auth
 	cp -n birthday_reminder/configs/default_config.yaml main_config.yaml
@@ -28,15 +28,37 @@ uninstall:
 	rm -r venv || true
 
 
-.PHONY: build_pyinstaller
-build_pyinstaller:
-	sudo apt-get install python3.11-dev
-	venv/bin/pyinstaller birthday_reminder/__main__.py -n birthday-reminder -y --clean \
-		--onefile --distpath dist/birthday-reminder
+.PHONY: build_windows
+build_windows:
+	rm dist -r -f -ea 0
+	${PYINSTALLER} birthday_reminder/__main__.py -n birthday-reminder -y --clean --onefile --distpath dist/birthday-reminder
+	md dist/birthday-reminder/auth -Force
+	cp birthday_reminder/configs/default_config.yaml dist/birthday-reminder/main_config.yaml
+	cp birthday_reminder/assets/example_birthdays.txt dist/birthday-reminder/Birthdays.txt
+
+	md dist/birthday-reminder/release_info -Force
+	cp LICENCE dist/birthday-reminder/release_info/LICENCE
+	cp VERSION dist/birthday-reminder/release_info/VERSION
+	cp README.md dist/birthday-reminder/release_info/README.md
+
+	Compress-Archive -Path dist/birthday-reminder -DestinationPath dist/windows.zip
+
+
+.PHONY: build_linux_macos
+build_linux_macos:
+	rm -r dist || true
+	${PYINSTALLER} birthday_reminder/__main__.py -n birthday-reminder -y --clean --onefile --distpath dist/birthday-reminder
 	mkdir -p dist/birthday-reminder/auth
 	chmod 700 dist/birthday-reminder/auth
-	cp -n birthday_reminder/configs/default_config.yaml dist/birthday-reminder/main_config.yaml
-	cp -n birthday_reminder/assets/example_birthdays.txt dist/birthday-reminder/Birthdays.txt
+	cp birthday_reminder/configs/default_config.yaml dist/birthday-reminder/main_config.yaml
+	cp birthday_reminder/assets/example_birthdays.txt dist/birthday-reminder/Birthdays.txt
+
+	mkdir -p dist/birthday-reminder/release_info
+	cp LICENCE dist/birthday-reminder/release_info/LICENCE
+	cp VERSION dist/birthday-reminder/release_info/VERSION
+	cp README.md dist/birthday-reminder/release_info/README.md
+
+	cd dist && tar czvf linux_macos.tar.gz birthday-reminder  # tar preserves permissions
 
 
 .PHONY: tests

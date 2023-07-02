@@ -1,0 +1,132 @@
+name: Make release in "VERSION" file change @ main
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'VERSION'
+
+jobs:
+  checks_and_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - name: Install packages
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Run CI
+        run: |
+          make check PYTHON=python3
+          make tests PYTHON=python3
+  
+
+  build_windows:
+    needs: checks_and_tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - name: Install packages
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - run: choco install make
+      - name: Build Windows Binary
+        run: |
+          make build_windows PYINSTALLER=pyinstaller
+      - name: Upload Windows Binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows.zip
+          path: dist/windows.zip
+
+
+  build_linux_macos:
+    needs: checks_and_tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - name: Install packages
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Build Linux Binary
+        run: |
+          make build_linux PYINSTALLER=pyinstaller
+      - name: Upload Linux Binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux_macos.tar.gz
+          path: dist/linux_macos.tar.gz
+
+  release:
+    needs:
+      - build_windows
+      - build_linux_macos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: get_version
+        run: echo "::set-output name=version::$(cat VERSION)"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: Release ${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: false
+
+      - name: Download Windows Binary
+        uses: actions/download-artifact@v2
+        with:
+          name: windows.zip
+      - name: Upload Windows Binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: windows.zip
+          asset_name: birthday-reminder-windows-v${{ steps.get_version.outputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Download MacOS Binary
+        uses: actions/download-artifact@v2
+        with:
+          name: linux_macos.zip
+      - name: Upload MacOS Binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: linux_macos.zip
+          asset_name: birthday-reminder-macOS-v${{ steps.get_version.outputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Linux Binary
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: linux_macos.zip.tar.gz
+          asset_name: birthday-reminder-linux-v${{ steps.get_version.outputs.version }}.zip
+          asset_content_type: application/zip
