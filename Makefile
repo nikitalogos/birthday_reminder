@@ -30,18 +30,19 @@ uninstall:
 
 .PHONY: build_windows
 build_windows:
-	# rm dist -Recurse -Force -ErrorAction SilentlyContinue # doesn't work in PowerShell :(
-	${PYINSTALLER} birthday_reminder/__main__.py -n birthday-reminder -y --clean --onefile --distpath dist/birthday-reminder
-	md dist/birthday-reminder/auth -Force
-	cp birthday_reminder/configs/default_config.yaml dist/birthday-reminder/main_config.yaml
-	cp birthday_reminder/assets/example_birthdays.txt dist/birthday-reminder/Birthdays.txt
+	if exist dist rmdir /s /q dist
+	${PYINSTALLER} birthday_reminder\__main__.py -n birthday-reminder -y --clean --onefile --distpath dist\birthday-reminder
+	mkdir dist\birthday-reminder\auth
+	copy birthday_reminder\configs\default_config.yaml dist\birthday-reminder\main_config.yaml
+	copy birthday_reminder\assets\example_birthdays.txt dist\birthday-reminder\Birthdays.txt
 
-	md dist/birthday-reminder/release_info -Force
-	cp LICENCE dist/birthday-reminder/release_info/LICENCE
-	cp VERSION dist/birthday-reminder/release_info/VERSION
-	cp README.md dist/birthday-reminder/release_info/README.md
+	mkdir dist\birthday-reminder\release_info
+	copy LICENCE dist\birthday-reminder\release_info\LICENCE
+	copy VERSION dist\birthday-reminder\release_info\VERSION
+	copy README.md dist\birthday-reminder\release_info\README.md
 
-	Compress-Archive -Path dist/birthday-reminder -DestinationPath dist/windows.zip
+	powershell Compress-Archive -Path dist\birthday-reminder -DestinationPath dist\windows.zip
+
 
 
 .PHONY: build_linux_macos
