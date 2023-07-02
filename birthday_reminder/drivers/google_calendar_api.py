@@ -20,8 +20,8 @@ class GoogleApiAuth:
     SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
     _PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    _DEFAULT_SECRET_FILE = os.path.join(_PROJECT_DIR, "auth/google_secret.json")
-    _DEFAULT_TOKEN_FILE = os.path.join(_PROJECT_DIR, "auth/google_token.json")
+    _DEFAULT_SECRET_FILE = os.path.join(_PROJECT_DIR, "auth", "google_secret.json")
+    _DEFAULT_TOKEN_FILE = os.path.join(_PROJECT_DIR, "auth", "google_token.json")
 
     def __init__(self, port: int, secret_file: str = _DEFAULT_SECRET_FILE, token_file: str = _DEFAULT_TOKEN_FILE):
         self.port = port
@@ -33,7 +33,7 @@ class GoogleApiAuth:
     def _load_secret_info(self) -> dict:
         if not os.path.exists(self.secret_file):
             raise FileNotFoundError(
-                f"Google secret file not found at {self.secret_file}!\n"
+                f'Google secret file not found at "{self.secret_file}"!\n'
                 + Colorize.warning(
                     "It seems that you executed command that requires authorization in Google Api.\n"
                     "To learn how to authorize, read the README.md:\n"
