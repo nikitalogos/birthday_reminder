@@ -195,8 +195,9 @@ def main(cmdline_args: Optional[list] = None) -> int:
                 )
 
                 if not args.yes:
-                    print(Colorize.warning(
-                        "Do you want to upload events from file to Google Calendar?\n" + changes_str))
+                    print(
+                        Colorize.warning("Do you want to upload events from file to Google Calendar?\n" + changes_str)
+                    )
                     while True:
                         user_input = input(
                             Colorize.warning("Press 'y' to continue or 'n' to cancel, then press 'Enter':")
