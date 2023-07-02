@@ -6,6 +6,6 @@
 **__pycache__
 venv
 .ipynb_checkpoints
-.auth
+auth
 main_config.yaml
 Birthdays.txt

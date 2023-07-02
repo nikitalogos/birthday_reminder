@@ -20,8 +20,8 @@ class GoogleApiAuth:
     SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
     _PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    _DEFAULT_SECRET_FILE = os.path.join(_PROJECT_DIR, ".auth/google_secret.json")
-    _DEFAULT_TOKEN_FILE = os.path.join(_PROJECT_DIR, ".auth/google_token.json")
+    _DEFAULT_SECRET_FILE = os.path.join(_PROJECT_DIR, "auth/google_secret.json")
+    _DEFAULT_TOKEN_FILE = os.path.join(_PROJECT_DIR, "auth/google_token.json")
 
     def __init__(self, port: int, secret_file: str = _DEFAULT_SECRET_FILE, token_file: str = _DEFAULT_TOKEN_FILE):
         self.port = port

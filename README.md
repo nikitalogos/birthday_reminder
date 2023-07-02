@@ -113,7 +113,7 @@ Here is the short text version:
 ### Save credentials
 
 1. Rename downloaded file to `google_secret.json`
-2. Put it to the directory `.auth` in the root of the project (you may need to enable showing hidden files in your file manager)
+2. Put it to the directory `auth` in the root of the project.
 
 
 ## Usage

@@ -14,8 +14,8 @@ install_python:
 .PHONY: install
 install:
 	make install_python
-	mkdir -p .auth
-	chmod 700 .auth
+	mkdir -p auth
+	chmod 700 auth
 	cp -n birthday_reminder/configs/default_config.yaml main_config.yaml
 	cp -n birthday_reminder/assets/example_birthdays.txt Birthdays.txt
 	echo "#!/bin/sh\n$(realpath .)/venv/bin/python -m birthday_reminder \"\$$@\"" | sudo tee ${EXE}
@@ -24,7 +24,7 @@ install:
 .PHONY: uninstall
 uninstall:
 	sudo rm ${EXE} || true
-	rm -r .auth || true
+	rm -r auth || true
 	rm -r venv || true
 
 
