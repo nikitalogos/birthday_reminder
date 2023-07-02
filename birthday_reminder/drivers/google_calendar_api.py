@@ -36,9 +36,9 @@ class GoogleApiAuth:
                 f"Google secret file not found at {self.secret_file}!\n"
                 + Colorize.warning(
                     "It seems that you executed command that requires authorization in Google Api.\n"
-                    "To learn how to authorize, read the README.md.\n"
-                    "You can also continue using the program without Google integration, "
-                    "but some features will be unavailable."
+                    "To learn how to authorize, read the README.md:\n"
+                ) + Colorize.info(
+                    "https://github.com/nikitalogos/birthday_reminder/tree/main#authorize-in-google-calendar-api"
                 )
             )
         with open(self.secret_file) as f:
