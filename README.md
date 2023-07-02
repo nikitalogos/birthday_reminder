@@ -86,7 +86,33 @@ make install
 
 ## Authorize in Google Calendar API
 
-...
+To connect `birthday-reminder` to your Google Calendar, you need to authorize in Google Calendar API.
+
+### Get credentials
+
+First, you need to obtain credentials.
+
+Here is the detailed visual guide how to do it: [super_detailed_guide_through_google_api.pdf](./docs/super_detailed_guide_through_google_api.pdf)
+
+Here is the short text version:
+1. Go to the [Google API Console](https://console.cloud.google.com/)
+2. Create a new project `birthday-reminder`
+3. Enable `Google Calendar API` for the project
+4. Go to the `Credentials` section on the left navigation bar
+5. Click on `Configure Consent Screen`
+   1. Go through the steps to configure your consent screen
+   2. It's important to choose `auth/calendar` scope
+6. Click on `Create Credentials` and select `OAuth client ID`
+   1. Select `Web application` as your Application type 
+   2. Set up your `Authorized redirect URIs`. Type this string exactly: `http://localhost:58585/`
+7. You'll get a `client_id` and `client_secret` — these are important for your project to connect to the API. 
+   1. Press `Download json` and download `.json` file with your credentials
+
+### Save credentials
+
+1. Rename downloaded file to `google_secret.json`
+2. Put it to the directory `.auth` in the root of the project (you may need to enable showing hidden files in your file manager)
+
 
 ## Usage
 
