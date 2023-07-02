@@ -39,17 +39,17 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
       - run: choco install make
-      - name: Build Windows Binary
+      - name: Build Binary
         run: |
           make build_windows PYINSTALLER=pyinstaller
-      - name: Upload Windows Binary
+      - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
           name: windows.zip
           path: dist/windows.zip
 
 
-  build_linux_macos:
+  build_linux:
     needs: checks_and_tests
     runs-on: ubuntu-latest
     steps:
@@ -62,19 +62,42 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -e .
-      - name: Build Linux/MacOS Binary
+      - name: Build Binary
         run: |
           make build_linux_macos PYINSTALLER=pyinstaller
-      - name: Upload Linux/MacOS Binary
+      - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
-          name: linux_macos.tar.gz
+          name: linux.tar.gz
+          path: dist/linux_macos.tar.gz
+
+  build_macos:
+    needs: checks_and_tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+      - name: Install packages
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Build Binary
+        run: |
+          make build_linux_macos PYINSTALLER=pyinstaller
+      - name: Upload Binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: macos.tar.gz
           path: dist/linux_macos.tar.gz
 
   release:
     needs:
       - build_windows
-      - build_linux_macos
+      - build_macos
+      - build_linux
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -109,17 +132,21 @@ jobs:
       - name: Download MacOS Binary
         uses: actions/download-artifact@v2
         with:
-          name: linux_macos.zip
+          name: macos.tar.gz
       - name: Upload MacOS Binary
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: linux_macos.zip
-          asset_name: birthday-reminder-macOS-v${{ steps.get_version.outputs.version }}.zip
-          asset_content_type: application/zip
+          asset_path: macos.tar.gz
+          asset_name: birthday-reminder-macOS-v${{ steps.get_version.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
 
+      - name: Download Linux Binary
+        uses: actions/download-artifact@v2
+        with:
+          name: linux.tar.gz
       - name: Upload Linux Binary
         id: upload_release_asset
         uses: actions/upload-release-asset@v1
@@ -127,6 +154,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: linux_macos.zip.tar.gz
-          asset_name: birthday-reminder-linux-v${{ steps.get_version.outputs.version }}.zip
-          asset_content_type: application/zip
+          asset_path: linux.tar.gz
+          asset_name: birthday-reminder-linux-v${{ steps.get_version.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
