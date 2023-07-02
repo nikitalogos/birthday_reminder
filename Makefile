@@ -37,8 +37,8 @@ build_windows:
 	cp birthday_reminder/assets/example_birthdays.txt dist/birthday-reminder/Birthdays.txt
 
 	mkdir -p dist/birthday-reminder/release_info
-	cp LICENCE dist/birthday-reminder/release_info/LICENCE
-	cp VERSION dist/birthday-reminder/release_info/VERSION
+	cp LICENCE dist/birthday-reminder/release_info/LICENCE.txt
+	cp VERSION dist/birthday-reminder/release_info/VERSION.txt
 	cp README.md dist/birthday-reminder/release_info/README.md
 
 	powershell -Command "Compress-Archive -Path dist/birthday-reminder -DestinationPath dist/windows.zip"

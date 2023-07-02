@@ -120,10 +120,9 @@ jobs:
           path: artifacts/
 
       - run: |
-          cd artifacts
-          mv windows.zip "birthday-reminder-windows-v$(cat VERSION).zip"
-          mv linux.tar.gz "birthday-reminder-linux-v$(cat VERSION).tar.gz"
-          mv macos.tar.gz "birthday-reminder-macOS-v$(cat VERSION).tar.gz"
+          mv artifacts/windows.zip "artifacts/birthday-reminder-windows-v$(cat VERSION).zip"
+          mv artifacts/linux.tar.gz "artifacts/birthday-reminder-linux-v$(cat VERSION).tar.gz"
+          mv artifacts/macos.tar.gz "artifacts/birthday-reminder-macOS-v$(cat VERSION).tar.gz"
 
       - name: Create release
         uses: softprops/action-gh-release@v1
