@@ -2,6 +2,7 @@ import enum
 import json
 import os.path
 import time
+import sys
 from typing import Iterable
 
 import tqdm
@@ -19,7 +20,13 @@ from birthday_reminder.utils.colorize import Colorize
 class GoogleApiAuth:
     SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
-    _PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    if getattr(sys, 'frozen', False):
+        # Running as a frozen executable
+        _PROJECT_DIR = os.path.dirname(sys.executable)
+    else:
+        # Running in a development environment
+        _PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
     _DEFAULT_SECRET_FILE = os.path.join(_PROJECT_DIR, "auth", "google_secret.json")
     _DEFAULT_TOKEN_FILE = os.path.join(_PROJECT_DIR, "auth", "google_token.json")
 

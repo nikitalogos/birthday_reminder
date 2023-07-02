@@ -1,14 +1,21 @@
 import os.path
-from os.path import dirname
+import sys
 
 import yaml
 from cerberus import Validator
 
 from birthday_reminder.configs.base_config import BaseConfig
 
-_THIS_FILE_DIR = dirname(os.path.realpath(__file__))
-_PROJECT_DIR = dirname(dirname(_THIS_FILE_DIR))
-DEFAULT_CONFIG_FILE = os.path.join(_THIS_FILE_DIR, "default_config.yaml")
+if getattr(sys, 'frozen', False):
+    # Running as a frozen executable
+    _THIS_FILE_DIR = os.path.dirname(sys.executable)
+    _PROJECT_DIR = _THIS_FILE_DIR
+else:
+    # Running in a development environment
+    _THIS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+    _PROJECT_DIR = os.path.dirname(os.path.dirname(_THIS_FILE_DIR))
+
+DEFAULT_CONFIG_FILE = os.path.join(_THIS_FILE_DIR, "default_config.yaml")  # only accessible in dev environment
 MAIN_CONFIG_FILE = os.path.join(_PROJECT_DIR, "main_config.yaml")
 
 
