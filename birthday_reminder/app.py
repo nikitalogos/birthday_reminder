@@ -94,45 +94,44 @@ def main(cmdline_args: Optional[list] = None) -> int:
     args = parser.parse_args(args=cmdline_args)
     args_dict = vars(args)
 
-    def update_config():
-        if args.verbose >= 2:
-            print(Colorize.info("Initial config:"))
-            print(config)
+    # update config
+    if args.verbose >= 2:
+        print(Colorize.info("Initial config:"))
+        print(config)
 
-        args_dict_for_config = copy.deepcopy(args_dict)
-        for key in ["config_file", "command", "sort_type", "force", "yes"]:
-            args_dict_for_config.pop(key, None)
-        args_dict_no_nones = {k: v for k, v in args_dict_for_config.items() if v is not None}
-        try:
-            if args.config_file is not None:
-                if args.verbose >= 2:
-                    print(Colorize.info(f"config_file provided. Loading config from file: {args.config_file}"))
-                config.set_file_path(args.config_file)
-                config.load_from_file()
-                if args.verbose >= 2:
-                    print(config)
-            else:
-                if args.verbose >= 2:
-                    print(Colorize.info("config_file not provided. Using default config_file path."))
-                config.set_file_path(MAIN_CONFIG_FILE)
-                config.load_from_file()
-                if args.verbose >= 2:
-                    print(config)
+    args_dict_for_config = copy.deepcopy(args_dict)
+    for key in ["config_file", "command", "sort_type", "force", "yes"]:
+        args_dict_for_config.pop(key, None)
+    args_dict_no_nones = {k: v for k, v in args_dict_for_config.items() if v is not None}
+    try:
+        if args.config_file is not None:
+            if args.verbose >= 2:
+                print(Colorize.info(f"config_file provided. Loading config from file: {args.config_file}"))
+            config.set_file_path(args.config_file)
+            config.load_from_file()
+            if args.verbose >= 2:
+                print(config)
+        else:
+            if args.verbose >= 2:
+                print(Colorize.info("config_file not provided. Using default config_file path."))
+            config.set_file_path(MAIN_CONFIG_FILE)
+            config.load_from_file()
+            if args.verbose >= 2:
+                print(config)
 
-            if len(args_dict_no_nones) > 0:
-                if args.verbose >= 2:
-                    print(Colorize.info(f"Updating config with provided command line arguments:\n{args_dict_no_nones}"))
-                config.set_public_vars(args_dict_no_nones)
-                if args.verbose >= 2:
-                    print(config)
-        except Exception as e:
-            print_error(args, e)
-            return 1
-        if config.verbose:
-            print(Colorize.info("Final configuration:"))
-            print(config)
-
-    update_config()
+        if len(args_dict_no_nones) > 0:
+            if args.verbose >= 2:
+                print(Colorize.info(f"Updating config with provided command line arguments:\n{args_dict_no_nones}"))
+            config.set_public_vars(args_dict_no_nones)
+            if args.verbose >= 2:
+                print(config)
+    except Exception as e:
+        print_error(args, e)
+        return 1
+    if config.verbose:
+        print(Colorize.info("Final configuration:"))
+        print(config)
+    # end update config
 
     if args.command in ["validate", "show", "diff", "upload"]:
         try:

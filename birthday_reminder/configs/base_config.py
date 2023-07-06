@@ -49,7 +49,7 @@ class BaseConfig:
             raise Exception("Failed to read: file_path not specified!")
 
         _, ext = os.path.splitext(file_path)
-        assert ext == ".yaml"
+        assert ext == ".yaml", "Config should be a .yaml file!"
 
         with open(file_path, "r", encoding="utf-8") as inf:
             data_dict = yaml.safe_load(inf)
@@ -65,7 +65,7 @@ class BaseConfig:
             raise Exception("Failed to save: file_path not specified!")
 
         _, ext = os.path.splitext(file_path)
-        assert ext == ".yaml"
+        assert ext == ".yaml", "Config should be a .yaml file!"
 
         dirname = os.path.dirname(os.path.abspath(file_path))
         if not os.path.exists(dirname):
