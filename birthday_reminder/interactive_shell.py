@@ -1,15 +1,14 @@
 import traceback
 
-from utils.colorize import Colorize
-
 from birthday_reminder.app import main
+from birthday_reminder.utils.colorize import Colorize
 
 if __name__ == "__main__":
     print(
         Colorize.info(
             "Welcome to the Birthday Reminder Interactive Shell!\n"
-            "Type '-h' or '--help' for help\n"
-            "Type '<command> -h' for help with command (ex. 'show -h')\n"
+            "Type '-h' or '--help' to list available commands\n"
+            "Type '<command> -h' to learn how to use the command (ex. 'show -h')\n"
         )
     )
 
