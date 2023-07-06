@@ -78,15 +78,15 @@ format:
 	${PYTHON} -m black -t py311 -l 120 ${DIRS}
 	${PYTHON} -m isort -l 120 ${DIRS}
 
-.PHONY: ci
-ci:
+.PHONY: fct
+fct:
 	make format
 	make check
 	make tests
 
 .PHONY: install_git_pre_commit_hook
 install_git_pre_commit_hook:
-	echo '#!/bin/sh\nmake ci' > .git/hooks/pre-commit
+	echo '#!/bin/sh\nmake fct' > .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
 
 .PHONY: uninstall_git_pre_commit_hook

@@ -50,33 +50,41 @@ For more information, please see [default_config.yaml](./birthday_reminder/confi
 
 ## Install CLI
 
-### Linux
+### Download executable
 
-#### Install
+1. Navigate to [Releases page](https://github.com/nikitalogos/birthday_reminder/releases)
+2. Select distribution for your operation system and download it
+3. Unpack folder and put it to a place of your choice
+4. To run the application you need:
+   1. on Windows - double-click on `birthday-reminder.exe`
+   2. on Linux / MacOS - open a terminal and execute `./birthday-reminder -h`
+
+### Install from source
+
+Tested on Ubuntu 22.04, but should work on Linux and MacOS.
 
 1. Put this directory to the place where all your programs live. Do not move it after installation or links will break!
 2. Enter the directory `cd birthday_reminder`
-3. Run `make install`. What it does:
+3. Run `make install_python` to setup Python3 environment. What it does:
    1. installs packages `python3.11` and `python3.911-venv` 
       1. (if you want to use it with different version of python, you can edit `Makefile`. However, it may not work with older versions of python
    2. creates virtual environment `venv` in directory `birthday_reminder`
+4. Run `make install` to install. What it does:
+   1. creates directory `auth` with proper rights
+   2. generates files `main_config.yaml` and `Birthdays.txt`
    3. creates executable `/usr/local/bin/birthday-reminder` that runs code from the current repository
-4. Restart your shell to make autocompletion work
-5. Run `birthday-reminder --help`
+5. Restart your shell to make autocompletion for command name work
+6. Run `birthday-reminder --help`
 
-#### Install for development
-
-```sh
-make install_git_pre_commit_hook
-make install
-```
+If you want to contribute, you may also want to install pre-commit hook: `make install_git_pre_commit_hook`
 
 > Developer note: `make install` installs package in editable mode, so you can edit code and `birthday-reminder` will use the updated version
 
-#### Uninstall
+#### Uninstall from source
 
 1. Remove python3.11 if you do not need it (which is unlikely) - `sudo apt-get uninstall python3.11 python3.11-venv`
 2. Run `make uninstall`
+3. delete this repository folder
 
 ## Configure
 

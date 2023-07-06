@@ -1,5 +1,8 @@
 name: Make release on "VERSION" file change @ main
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ main ]
@@ -51,9 +54,19 @@ jobs:
           name: windows
           path: dist/windows.zip
 
-  build_linux:
+  build_linux_macos:
     needs: checks_and_tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+        include:
+          - os: ubuntu-latest
+            artifact_name: linux
+            artifact_path: dist/linux.tar.gz
+          - os: macos-latest
+            artifact_name: macos
+            artifact_path: dist/macos.tar.gz
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
@@ -67,35 +80,12 @@ jobs:
       - name: Build Binary
         run: |
           make build_linux_macos PYINSTALLER=pyinstaller
-          mv dist/linux_macos.tar.gz dist/linux.tar.gz
+          mv dist/linux_macos.tar.gz ${{ matrix.artifact_path }}
       - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
-          name: linux
-          path: dist/linux.tar.gz
-
-  build_macos:
-    needs: checks_and_tests
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.11
-      - name: Install packages
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e .
-      - name: Build Binary
-        run: |
-          make build_linux_macos PYINSTALLER=pyinstaller
-          mv dist/linux_macos.tar.gz dist/macos.tar.gz
-      - name: Upload Binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: macos
-          path: dist/macos.tar.gz
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
 
   release:
     needs:
@@ -121,11 +111,9 @@ jobs:
           name: macos
           path: artifacts/
 
-      - run: ls -la .
-      - run: ls -la artifacts/
       - run: |
           mv artifacts/windows.zip "artifacts/birthday-reminder-windows-v$(cat VERSION).zip"
-          mv artifacts/linux.tar.gz "artifacts/birthday-reminder-linux-v$(cat VERSION).tar.gz"
+          mv artifacts/linux.tar.gz "artifacts/birthday-reminder-ubuntu-v$(cat VERSION).tar.gz"
           mv artifacts/macos.tar.gz "artifacts/birthday-reminder-macOS-v$(cat VERSION).tar.gz"
 
       - name: Create release

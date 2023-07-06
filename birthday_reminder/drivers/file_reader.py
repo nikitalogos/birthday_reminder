@@ -20,7 +20,7 @@ class BirthdayLine(TextLine):
     event: BirthdayEvent
 
     def __str__(self):
-        return Colorize.info(f"{self.line_idx}:") + f" {self.line_text} -> " + Colorize.success(self.event)
+        return Colorize.info(f"{self.line_idx}:") + f" {self.line_text} -> " + Colorize.success(str(self.event))
 
 
 @dataclass

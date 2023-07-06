@@ -19,12 +19,12 @@ def print_events(events: list[BirthdayEvent]):
 
 
 def show(events: list[BirthdayEvent], sort_type: BirthdayEvent.SortTypes):
-    message = {
+    messages = {
         BirthdayEvent.SortTypes.year: "year of birth",
         BirthdayEvent.SortTypes.date: "month and day of birth",
         BirthdayEvent.SortTypes.next: "days to the next birthday",
     }
-    message = Colorize.info(f"\nShowing birthdays sorted by {message[sort_type]}:\n")
+    message = Colorize.info(f"\nShowing birthdays sorted by {messages[sort_type]}:\n")
     print(message)
 
     events_sorted = BirthdayEvent.sort_events(events, sort_type)
@@ -58,7 +58,7 @@ def print_diff(
 
 
 def print_error(args, e: Exception):
-    print(Colorize.fail(e))
+    print(Colorize.fail(str(e)))
     if args.verbose >= 3:
         traceback.print_exc()
 
