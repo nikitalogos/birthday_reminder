@@ -90,8 +90,7 @@ jobs:
   release:
     needs:
       - build_windows
-      - build_macos
-      - build_linux
+      - build_linux_macos
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
