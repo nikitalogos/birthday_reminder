@@ -65,7 +65,7 @@ The simplest way to create a file in the correct encoding is to copy file provid
 ### Download executable
 
 1. Navigate to [Releases page](https://github.com/nikitalogos/birthday_reminder/releases)
-2. Select distribution for your operation system and download it
+2. Select distribution for your operating system and download it
 3. Unpack folder and put it to a place of your choice
 4. To run the application you need:
    1. on Windows - double-click on `birthday-reminder.exe` (or open a terminal and execute `birthday-reminder.exe`)
