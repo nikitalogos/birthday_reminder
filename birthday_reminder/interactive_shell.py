@@ -7,8 +7,8 @@ if __name__ == "__main__":
     print(
         Colorize.info(
             "Welcome to the Birthday Reminder Interactive Shell!\n"
-            "Type '-h' or '--help' to list available commands\n"
-            "Type '<command> -h' to learn how to use the command (ex. 'show -h')\n"
+            "To list available commands, type '-h', then press Enter\n"
+            "To learn how to use the command, type '<command> -h' (ex. 'show -h'), then press Enter\n"
         )
     )
 
