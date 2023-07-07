@@ -48,6 +48,18 @@ For more information, please see [default_config.yaml](./birthday_reminder/confi
      1. You may need to use your calculator to compute the amount of minutes in day or in a week, so here are the shortcuts: `1 day = 1440 min`, `1 week = 10080 min`
 
 
+## Unicode issues
+
+This program uses emojis, which are Unicode symbols. 
+
+If you are on Windows 10 and earlier, unicode symbols may not show correctly in the command line. 
+To avoid this, you can run `birthday-reminder.exe` from Git Bash terminal, or just do nothing. 
+Regardless of command line display issues, emojis would be correctly uploaded to Google Calendar.
+
+Also make sure that your config file and file with birthdays are in `UTF-8` encoding. 
+If you use files provided with executable, they are fine, but if you specify your custom files, should pay attention to it.
+The simplest way to create a file in the correct encoding is to copy file provided in release package and put it in the desired location.
+
 ## Install CLI
 
 ### Download executable
@@ -56,7 +68,7 @@ For more information, please see [default_config.yaml](./birthday_reminder/confi
 2. Select distribution for your operation system and download it
 3. Unpack folder and put it to a place of your choice
 4. To run the application you need:
-   1. on Windows - double-click on `birthday-reminder.exe`
+   1. on Windows - double-click on `birthday-reminder.exe` (or open a terminal and execute `birthday-reminder.exe`)
    2. on Linux / MacOS - open a terminal and execute `./birthday-reminder -h`
 
 ### Install from source
