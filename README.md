@@ -15,7 +15,7 @@ If you edit the file in the future, just run `birthday-reminder` again to update
 
 ## Quick start
 
-1. Install program to your computer - see [Install CLI](##install-cli)
+1. Install program to your computer - see [Install CLI](#install-cli)
 2. **Windows**
     1. click to `birthday-reminder.exe`, you should see a black text window showing up
     2. type `validate` into this window
@@ -32,9 +32,9 @@ Showing birthdays sorted by days to the next birthday:
 
 1. 2020-01-01 - 🎁 John Doe - 3 years old (Will be 4 in 169 days)
 ```
-5. Now open file `Birthdays.txt` and replace `John Doe` with your birthdays. Please follow the format described in [File format](##file-format)
+5. Now open file `Birthdays.txt` and replace `John Doe` with your birthdays. Please follow the format described in [File format](#file-format)
 6. run `show next` again, to check that your data is valid
-    1. other options are `show date` and `show year`. They do the same, but with different sort order. To learn more, see [Usage](##usage)
+    1. other options are `show date` and `show year`. They do the same, but with different sort order. To learn more, see [Usage](#usage)
 7. now you are ready to upload birthdays to Google Calendar. But first, you need to authorize in Google API. Follow the steps here: [Authorize in Google Calendar API](#authorize-in-google-calendar-api)
 8. run command `upload` in `birthday-reminder`
     1. for the first time, you will be redirected to Google OAuth page. It opens in default browser, if you want to open it in a different browser, just copy link from the program window and paste to your browser manually.
@@ -45,9 +45,9 @@ Showing birthdays sorted by days to the next birthday:
 11. To make changes to birthdays, just edit text file and then run `upload` again.
 12. Please, do not edit events manually in Google Calendar, as it may break some logic.
     1. If you do change something in `Birthday Reminder` calendar, you can always delete it and then run `upload` again, but please be very cautious to not to delete your own data!
-13. Now you can explore more calendar features. All customizations are done by editing the `main_config.yaml` file. To learn more, read [Features](##features) and [Advanced usage](##advanced-usage)
-14. For more information about commands, read [Usage](##usage)
-15. If you have problems with Unicode symbols, see [Unicode issues](##unicode-issues)
+13. Now you can explore more calendar features. All customizations are done by editing the `main_config.yaml` file. To learn more, read [Features](#features) and [Advanced usage](#advanced-usage)
+14. For more information about commands, read [Usage](#usage)
+15. If you have problems with Unicode symbols, see [Unicode issues](#unicode-issues)
 
 ## File format
 
