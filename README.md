@@ -10,13 +10,51 @@ Google Calendar is a powerful app, but it can be difficult to get through it's c
 Also creating individual events can be a tedious and frustrating task. 
 
 This simple tool is created to simplify the management of birthday events in Google Calendar. 
-You just create a plain-text file with birthdays like that: `1990-01-01 Brave Kitty`, and `birthday-reminder` creates a new calendar based on this file. 
+You just create a plain-text file with birthdays like that: `1990-01-31 Brave Kitty`, and `birthday-reminder` creates a new calendar based on this file. 
 If you edit the file in the future, just run `birthday-reminder` again to update the calendar and that's it!
+
+## Quick start
+
+1. Install program to your computer - see [Install CLI](## Install CLI)
+2. **Windows**
+    1. click to `birthday-reminder.exe`, you should see a black text window showing up
+    2. type `validate` into this window
+3. **MacOS / Linux**
+   1. execute `./birthday-reminder validate` in the terminal
+4. you should see `File ...Birthdays.txt is valid!`
+5. **Windows**
+   1. type `show next`
+6. **MacOS / Linux**
+   1. run `./birthday-reminder show next`
+7. you should see one birthday record with default person:
+```
+Showing birthdays sorted by days to the next birthday:
+
+1. 2020-01-01 - 🎁 John Doe - 3 years old (Will be 4 in 169 days)
+```
+5. Now open file `Birthdays.txt` and replace `John Doe` with your birthdays. Please follow the format described in [File format](## File format)
+6. run `show next` again, to check that your data is valid
+    1. other options are `show date` and `show year`. They do the same, but with different sort order. To learn more, see [Usage](## Usage)
+7. now you are ready to upload birthdays to Google Calendar. But first, you need to authorize in Google API. Follow the steps here: [Authorize in Google Calendar API](## Authorize in Google Calendar API)
+8. run command `upload` in `birthday-reminder`
+    1. for the first time, you will be redirected to Google OAuth page. It opens in default browser, if you want to open it in a different browser, just copy link from the program window and paste to your browser manually.
+    2. after authorization is done, the program will show you what changes it is going to make in your Google Calendar. To accept them, press `y`, then `Enter`
+    3. this will create new calendar `Birthday Reminder` in the Google Calendar and upload your birthday events to it
+9. to see your events, you can navigate to `https://calendar.google.com`. You may need to refresh the page to see changes.
+10. Great, that's it! Now you will be notified about birthdays by Google via email and push notifications!
+11. To make changes to birthdays, just edit text file and then run `upload` again.
+12. Please, do not edit events manually in Google Calendar, as it may break some logic.
+    1. If you do change something in `Birthday Reminder` calendar, you can always delete it and then run `upload` again, but please be very cautious to not to delete your own data!
+13. Now you can explore more calendar features. All customizations are done by editing the `main_config.yaml` file. To learn more, read [Features](## Features) and [Advanced usage](## Advanced usage)
+14. For more information about commands, read [Usage](## Usage)
+15. If you have problems with Unicode symbols, see [Unicode issues](## Unicode issues)
 
 ## File format
 
 File format is very simple:
 1. Each line is a record with two fields: `date` and `title` separated by whitespace
+   1. `date` is in format `YYYY-MM-DD` or `MM-DD` (year is optional)
+   2. `title` can contain any symbols except `#`
 2. text after `#` is considered a comment and is ignored
 3. empty lines are ignored
 4. whitespace before and after `date` and `title` is ignored
@@ -34,7 +72,7 @@ Alex # error, date is missing
 
 ## Features
 
-Birtday reminder has pretty good default params, so you can just use it without configuration at all, but you may want to customize it. 
+Birthday reminder has pretty good default params, so you can just use it without configuration at all, but you may want to customize it. 
 Here I will tell you about the features and how you can configure them. 
 For more information, please see [default_config.yaml](./birthday_reminder/configs/default_config.yaml) (or `main_config.yaml`, which will be created on installation)
 
@@ -114,7 +152,9 @@ To connect `birthday-reminder` to your Google Calendar, you need to authorize in
 
 First, you need to obtain credentials.
 
-Here is the detailed visual guide how to do it: [super_detailed_guide_through_google_api.pdf](./docs/super_detailed_guide_through_google_api.pdf)
+Here is the detailed visual guide how to do it: 
+1. Download - [super_detailed_guide_through_google_api.pdf](https://raw.githubusercontent.com/nikitalogos/birthday_reminder/main/docs/super_detailed_guide_through_google_api.pdf)
+2. Web (may not work) - [super_detailed_guide_through_google_api.pdf](./docs/super_detailed_guide_through_google_api.pdf)
 
 Here is the short text version:
 1. Go to the [Google API Console](https://console.cloud.google.com/)
@@ -147,6 +187,7 @@ Here is the short text version:
       2. `show year` - sorted by year of birth (dates without known year will show up in the end)
 4. To show birthdays from Google Calendar, run `birthday-reminder gshow next`.
    1. To run this command, you first need to authorize in Google Calendar. (See the previous section for details)
+   2. If you haven't run `upload` yet, there will be no birthdays in Google Calendar, so you'll see an empty list.
 5. To show diff between file and Google Calendar, run `birthday-reminder diff`
 6. To upload birthdays from file to Google Calendar, run `birthday-reminder upload`
    1. This command first will show `diff` between file and Google Calendar, explain what changes it's going to make and ask for confirmation
