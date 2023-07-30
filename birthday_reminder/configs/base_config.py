@@ -84,7 +84,7 @@ def add_arguments_to_parser(parser: argparse.ArgumentParser, config: BaseConfig,
                     f"--{key.replace('_', '-')}",
                     type=type(value),
                 )
-            elif type(value) == bool:
+            elif type(value) is bool:
                 # argparse is really bad at handling bools.
                 # So just use default value False, so that any non-empty string will evaluate to True
                 assert value is False, f"Default value for {key} is True. This is not supported"
@@ -92,7 +92,7 @@ def add_arguments_to_parser(parser: argparse.ArgumentParser, config: BaseConfig,
                     f"--{key.replace('_', '-')}",
                     type=bool,
                 )
-            elif type(value) == list:
+            elif type(value) is list:
                 parser.add_argument(
                     f"--{key.replace('_', '-')}",
                     type=type(value[0]),

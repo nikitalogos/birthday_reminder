@@ -187,7 +187,7 @@ class GoogleCalendarApi:
             except Exception as e:
                 # if user creates exception from recurring event, it will cause 410 error
                 # if exception event will be deleted after base event
-                if type(e) == HttpError and e.resp.status == 410:
+                if type(e) is HttpError and e.resp.status == 410:
                     print(
                         f"Event has been deleted. Probably exception from a recurring event. "
                         f"Ignoring this error.\n{google_event=}"
