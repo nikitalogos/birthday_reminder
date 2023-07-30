@@ -85,6 +85,16 @@ For more information, please see [default_config.yaml](./birthday_reminder/confi
  5. `popup_reminders_minutes`, `email_reminders_minutes` - google can either notify you about event via popup on your phone or via email. You can set up to 5 reminder per event. Here reminder times are specified in minutes before the start of the event (negative values don't work). 
      1. You may need to use your calculator to compute the amount of minutes in day or in a week, so here are the shortcuts: `1 day = 1440 min`, `1 week = 10080 min`
 
+ ## Integration with [Birthday Greetings AI](https://github.com/nikitalogos/birthday_greetings_ai)
+
+You can create an outstanding birthday greeting with `Birthday Greetings AI`!
+
+To do this, simply clico on birthday event in Google Calendar to open the description 
+and follow the link provided there.
+
+To try `Birthday Greetings AI` independently, visit [logosnikita.com/birthday_greetings_ai](https://logosnikita.com/birthday_greetings_ai)
+
+To learn more about `Birthday Greetings AI`, visit its [Birthday Greetings AI @ Github](https://github.com/nikitalogos/birthday_greetings_ai)
 
 ## Unicode issues
 

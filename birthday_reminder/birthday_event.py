@@ -1,6 +1,7 @@
 import copy
 import dataclasses
 import enum
+import urllib.parse
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -104,6 +105,21 @@ class BirthdayEvent:
         return f"{self.config.title_prefix}{self.title}{self.config.title_postfix}{self._zodiac_str}"
 
     @property
+    def _birthday_greetings_ai_url(self):
+        assert self.config is not None, "Config is required to make birthday_greetings_ai_url"
+
+        base_url = "https://logosnikita.com/birthday_greetings_ai/"
+        encoded_params = urllib.parse.urlencode(
+            dict(
+                name=self.title,
+                date_of_birth=self.date.strftime("%Y-%m-%d"),
+                use_age=self.has_year,
+                use_zodiac_sign=self.config.use_zodiac_signs or self.config.use_zodiac_names,
+            )
+        )
+        return urllib.parse.urljoin(base_url, "?" + encoded_params)
+
+    @property
     def description_for_google_calendar(self):
         if self.has_year:
             date_of_birth = self.date.strftime("%Y-%m-%d")
@@ -115,6 +131,7 @@ class BirthdayEvent:
         description += f"Zodiac sign: {self.zodiac[1]} ({self.zodiac[0]})\n"
         description += f"{self._GENERATED_BY_STR} on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
         description += f"{self._UNIQUE_TAG}\n"
+        description += f"Create greeting with Birthday Greetings AI: {self._birthday_greetings_ai_url}\n"
         return description
 
     def __str__(self):
